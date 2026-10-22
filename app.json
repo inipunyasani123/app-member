@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "member",
-    "slug": "member",
+    "name": "Kopi Blirik",
+    "slug": "app-member",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "kopiblirik",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#F4EEE1",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "id.pintuweb.demo.kopiblirik"
     },
     "android": {
+      "package": "id.pintuweb.demo.kopiblirik",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#1C5638",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -19,7 +23,17 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "output": "static",
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      ["expo-router", { "sitemap": false }],
+      "expo-status-bar",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

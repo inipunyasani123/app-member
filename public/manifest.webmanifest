@@ -1,0 +1,23 @@
+{
+  "name": "Kopi Blirik: Member & Poin",
+  "short_name": "Kopi Blirik",
+  "description": "Demo aplikasi member kafe rekaan Kopi Blirik: kartu QR, bintik, level, voucher, dan pesan ambil. Buatan PintuWeb.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3EDE0",
+  "theme_color": "#1B5536",
+  "categories": ["food", "lifestyle", "shopping"],
+  "icons": [
+    { "src": "/ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/ikon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Kartu member", "url": "/kartu", "icons": [{ "src": "/ikon-192.png", "sizes": "192x192" }] },
+    { "name": "Pesan ambil", "url": "/pesan", "icons": [{ "src": "/ikon-192.png", "sizes": "192x192" }] }
+  ]
+}
