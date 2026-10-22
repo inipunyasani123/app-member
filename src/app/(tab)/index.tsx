@@ -92,7 +92,10 @@ export default function Beranda() {
         </KartuTaut>
       </View>
 
-      {d?.r.akanHangus ? (
+      {/* Slot tetap supaya isi di bawahnya tidak bergeser saat data perangkat termuat. */}
+      {!d ? (
+        <Kerangka tinggi={66} />
+      ) : d.r.akanHangus ? (
         <KartuTaut href="/poin" label="Lihat bintik yang akan hangus" style={s.hangus}>
           <Ikon n="peringatan" warna={W.merah} tebal={2} />
           <T v="kecil" warna={W.tinta} style={{ flex: 1 }}>
@@ -101,7 +104,13 @@ export default function Beranda() {
           </T>
           <Ikon n="kanan" ukuran={18} warna={W.merah} />
         </KartuTaut>
-      ) : null}
+      ) : (
+        <KartuTaut href="/poin" label="Lihat riwayat bintik" style={StyleSheet.flatten([s.hangus, s.aman])}>
+          <Ikon n="centang" warna={W.hijau} tebal={2.2} />
+          <T v="kecil" warna={W.tinta} style={{ flex: 1 }}>Tidak ada bintik yang hangus dalam 45 hari ke depan.</T>
+          <Ikon n="kanan" ukuran={18} warna={W.hijau} />
+        </KartuTaut>
+      )}
 
       <JudulBagian judul="Menu musim hujan" href="/promo" tautan="Semua promo" label="Lihat semua promo dan menu musiman" />
       <View style={s.bento}>
@@ -193,7 +202,8 @@ const s = StyleSheet.create({
   ubin: { flex: 1, borderRadius: 24, padding: 16, gap: 6, minHeight: 156, overflow: 'hidden' },
   ubinHijau: { backgroundColor: W.hijau },
   ubinMentega: { backgroundColor: W.mentegaPucat, borderWidth: 2, borderColor: W.mentega },
-  hangus: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.merahPucat, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: '#EBC3B6' },
+  hangus: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.merahPucat, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, minHeight: 66, borderWidth: 1, borderColor: '#EBC3B6' },
+  aman: { backgroundColor: W.hijauPucat, borderColor: '#C6DACB' },
   bento: { flexDirection: 'row', gap: 10, height: 300 },
   bentoBesar: { flex: 1.1, borderRadius: 24, overflow: 'hidden', backgroundColor: W.garis, justifyContent: 'flex-end' },
   bentoTeks: { padding: 14, gap: 4, backgroundColor: 'rgba(15,53,36,0.82)' },
