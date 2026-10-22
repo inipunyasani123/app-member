@@ -32,4 +32,7 @@ Semua foto berlisensi CC0 atau domain publik, tanpa wajah orang. Nama berkas di 
 ## Huruf (SIL Open Font License 1.1, dari Google Fonts)
 
 - Caprasimo (judul), Schibsted Grotesk (teks), Fragment Mono (kode voucher).
-- Web: subset latin WOFF2 di `public/fonts`. Android/iOS: TTF di `assets/fonts`.
+- Web: WOFF2 di `public/fonts`, dipangkas dari subset latin Google Fonts dengan fontTools:
+  `pyftsubset <asli>.woff2 --unicodes="U+0020-007E,U+00A0-00FF,U+2013-2014,U+2018-201D,U+2022,U+2026,U+2192,U+2212" --layout-features="kern,liga,calt,tnum,lnum" --flavor=woff2`.
+  Menambah aksara di luar rentang itu = ulangi subset dari berkas asli Google Fonts.
+- Android/iOS: TTF utuh di `assets/fonts`.

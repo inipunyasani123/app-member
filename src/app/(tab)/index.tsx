@@ -106,7 +106,7 @@ export default function Beranda() {
       <JudulBagian judul="Menu musim hujan" href="/promo" tautan="Semua promo" label="Lihat semua promo dan menu musiman" />
       <View style={s.bento}>
         <KartuTaut href={`/promo/${besar.id}`} label={`${besar.nama}, ${rupiah(besar.harga)}`} style={s.bentoBesar}>
-          <Foto k={besar.foto!} alt={besar.nama} lebarTampil={180} style={StyleSheet.absoluteFill} />
+          <Foto k={besar.foto!} alt={besar.nama} lebarTampil={180} prioritas style={StyleSheet.absoluteFill} />
           <View style={s.bentoTeks}>
             <Lencana teks="Bintik 2×" ragam="mentega" />
             <T v="sub" warna={W.kertas}>{besar.nama}</T>
