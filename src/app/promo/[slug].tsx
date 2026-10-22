@@ -71,7 +71,7 @@ export default function DetailMenu() {
       <T v="judul2" h={2}>Menu musiman lain</T>
       <View style={{ gap: 10 }}>
         {lain.map((x) => (
-          <KartuTaut key={x.id} href={`/promo/${x.id}`} label={`${x.nama}, ${rupiah(x.harga)}`} style={s.lain}>
+          <KartuTaut key={x.id} href={`/promo/${x.id}`} style={s.lain}>
             <View style={s.lainFoto}>
               <Foto k={x.foto!} alt={x.nama} lebarTampil={64} />
             </View>

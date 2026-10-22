@@ -57,7 +57,7 @@ export default function Katalog() {
           const kurang = d ? h.biaya - d.r.saldo : 0;
           const status = !d ? null : kunci ? `Khusus ${levelById(h.minLevel!).nama} ke atas` : kurang > 0 ? `Kurang ${angka(kurang)} bintik` : 'Bisa ditukar';
           return (
-            <KartuTaut key={h.id} href={`/hadiah/${h.id}`} label={`${h.nama}, ${angka(h.biaya)} bintik${status ? ', ' + status : ''}`} style={StyleSheet.flatten([s.kartu, lebar ? s.lebar : s.sempit])}>
+            <KartuTaut key={h.id} href={`/hadiah/${h.id}`} style={StyleSheet.flatten([s.kartu, lebar ? s.lebar : s.sempit])}>
               <View style={[s.gambar, lebar && { height: 150 }]}>
                 {h.foto ? <Foto k={h.foto} bentuk={lebar ? 'l' : 'k'} alt={h.nama} lebarTampil={lebar ? 360 : 172} /> : (
                   <View style={s.tanpaFoto}>

@@ -68,7 +68,7 @@ export default function HalamanVoucher() {
             const st = statusVoucher(v, d.kini);
             const mepet = st === 'aktif' && v.berlaku - d.kini < 3 * 86400000;
             return (
-              <Pressable key={v.kode} role="button" aria-label={`${v.nama}, kode ${v.kode}. Buka kode untuk kasir`} onPress={() => setBuka(v)}>
+              <Pressable key={v.kode} role="button" onPress={() => setBuka(v)}>
                 <Tiket
                   redup={st !== 'aktif'}
                   kiri={

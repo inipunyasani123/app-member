@@ -50,7 +50,7 @@ export default function DaftarOutlet() {
       </View>
       <View style={{ gap: 12 }}>
         {urut.map((o, i) => (
-          <KartuTaut key={o.slug} href={`/outlet/${o.slug}`} label={`${o.nama}${d ? ', ' + statusBuka(o, d.kini).teks + ', ' + jarakKm(jarak(lokasi, o)) : ''}`} style={s.kartu}>
+          <KartuTaut key={o.slug} href={`/outlet/${o.slug}`} style={s.kartu}>
             <View style={s.foto}>
               <Foto k={o.foto} alt={`Suasana ${o.nama}`} lebarTampil={110} prioritas={i === 0} />
             </View>

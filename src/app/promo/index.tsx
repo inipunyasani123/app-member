@@ -41,7 +41,7 @@ export default function Promo() {
 
       <View style={s.grid}>
         {MUSIMAN.map((m, i) => (
-          <KartuTaut key={m.id} href={`/promo/${m.id}`} label={`${m.nama}, ${rupiah(m.harga)}`} style={StyleSheet.flatten([s.kartu, i % 3 === 0 ? { width: '100%' } : { width: '48.5%' }])}>
+          <KartuTaut key={m.id} href={`/promo/${m.id}`} style={StyleSheet.flatten([s.kartu, i % 3 === 0 ? { width: '100%' } : { width: '48.5%' }])}>
             <View style={{ height: i === 0 ? 210 : i % 3 === 0 ? 170 : 150, backgroundColor: W.garis }}>
               <Foto k={m.foto!} bentuk={i % 3 === 0 ? 'l' : 'k'} alt={m.nama} lebarTampil={i % 3 === 0 ? 360 : 172} prioritas={i === 0} />
             </View>

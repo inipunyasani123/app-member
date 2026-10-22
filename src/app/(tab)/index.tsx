@@ -46,11 +46,11 @@ export default function Beranda() {
         </View>
         <KartuTaut href="/akun" label="Buka akun dan preferensi" style={s.avatar}>
           <Bintik benih={5} jumlah={24} warna={W.kertas} kuat={0.9} />
-          <T v="judul2" warna={W.kertas}>{nama ? nama[0] : 'K'}</T>
+          <T v="judul2" warna={W.kertas} aria-hidden>{nama ? nama[0] : 'K'}</T>
         </KartuTaut>
       </View>
 
-      <KartuTaut href="/kartu" label={d ? `Kartu member, saldo ${angka(d.r.saldo)} bintik, level ${d.r.level.nama}. Buka kode QR` : 'Buka kartu member'}>
+      <KartuTaut href="/kartu">
         <KartuMember nama={d?.a.nama} nomor={d?.a.nomor} level={d?.r.level}>
           <View style={{ gap: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
@@ -77,13 +77,13 @@ export default function Beranda() {
       </KartuTaut>
 
       <View style={s.duaKolom}>
-        <KartuTaut href="/pesan" label="Pesan ambil di outlet" style={[s.ubin, s.ubinHijau]}>
+        <KartuTaut href="/pesan" style={[s.ubin, s.ubinHijau]}>
           <Bintik benih={21} jumlah={40} warna={W.kertas} kuat={0.6} />
           <Ikon n="pesan" ukuran={30} warna={W.mentega} tebal={2} />
           <T v="judul2" warna={W.kertas}>Pesan ambil</T>
           <T v="kecil" warna={W.hijauPucat}>{fav ? `Siap ±15 menit di ${fav.nama}` : 'Pesan dulu, ambil tanpa antre'}</T>
         </KartuTaut>
-        <KartuTaut href="/voucher" label={`Voucher saya, ${aktif.length} aktif`} style={[s.ubin, s.ubinMentega]}>
+        <KartuTaut href="/voucher" style={[s.ubin, s.ubinMentega]}>
           <Ikon n="voucher" ukuran={30} warna={W.hijauTua} tebal={2} />
           <T v="judul2" warna={W.hijauTua}>{d ? `${aktif.length} voucher` : 'Voucher'}</T>
           <T v="kecil" warna={W.tinta}>
@@ -96,7 +96,7 @@ export default function Beranda() {
       {!d ? (
         <Kerangka tinggi={66} />
       ) : d.r.akanHangus ? (
-        <KartuTaut href="/poin" label="Lihat bintik yang akan hangus" style={s.hangus}>
+        <KartuTaut href="/poin" style={s.hangus}>
           <Ikon n="peringatan" warna={W.merah} tebal={2} />
           <T v="kecil" warna={W.tinta} style={{ flex: 1 }}>
             <T v="kecilTebal" warna={W.merah}>{angka(d.r.akanHangus.jumlah)} bintik hangus {tglPendek(d.r.akanHangus.tanggal)}. </T>
@@ -105,7 +105,7 @@ export default function Beranda() {
           <Ikon n="kanan" ukuran={18} warna={W.merah} />
         </KartuTaut>
       ) : (
-        <KartuTaut href="/poin" label="Lihat riwayat bintik" style={StyleSheet.flatten([s.hangus, s.aman])}>
+        <KartuTaut href="/poin" style={StyleSheet.flatten([s.hangus, s.aman])}>
           <Ikon n="centang" warna={W.hijau} tebal={2.2} />
           <T v="kecil" warna={W.tinta} style={{ flex: 1 }}>Tidak ada bintik yang hangus dalam 45 hari ke depan.</T>
           <Ikon n="kanan" ukuran={18} warna={W.hijau} />
@@ -114,7 +114,7 @@ export default function Beranda() {
 
       <JudulBagian judul="Menu musim hujan" href="/promo" tautan="Semua promo" label="Lihat semua promo dan menu musiman" />
       <View style={s.bento}>
-        <KartuTaut href={`/promo/${besar.id}`} label={`${besar.nama}, ${rupiah(besar.harga)}`} style={s.bentoBesar}>
+        <KartuTaut href={`/promo/${besar.id}`} style={s.bentoBesar}>
           <Foto k={besar.foto!} alt={besar.nama} lebarTampil={180} prioritas style={StyleSheet.absoluteFill} />
           <View style={s.bentoTeks}>
             <Lencana teks="Bintik 2×" ragam="mentega" />
@@ -124,7 +124,7 @@ export default function Beranda() {
         </KartuTaut>
         <View style={{ flex: 1, gap: 10 }}>
           {kecil.map((m) => (
-            <KartuTaut key={m.id} href={`/promo/${m.id}`} label={`${m.nama}, ${rupiah(m.harga)}`} style={s.bentoKecil}>
+            <KartuTaut key={m.id} href={`/promo/${m.id}`} style={s.bentoKecil}>
               <View style={s.bentoFoto}>
                 <Foto k={m.foto!} alt={m.nama} lebarTampil={160} />
               </View>
@@ -139,7 +139,7 @@ export default function Beranda() {
 
       <JudulBagian judul="Outlet terdekat" href="/outlet" tautan="Semua outlet" label="Lihat semua outlet" />
       {terdekat && lokasi && d ? (
-        <KartuTaut href={`/outlet/${terdekat.slug}`} label={`${terdekat.nama}, ${statusBuka(terdekat, d.kini).teks}`} style={s.outlet}>
+        <KartuTaut href={`/outlet/${terdekat.slug}`} style={s.outlet}>
           <View style={s.outletFoto}>
             <Foto k={terdekat.foto} alt={`Suasana ${terdekat.nama}`} lebarTampil={96} />
           </View>
@@ -160,7 +160,7 @@ export default function Beranda() {
       {d ? (
         <View style={{ gap: 10 }}>
           {bisa.map((h) => (
-            <KartuTaut key={h.id} href={`/hadiah/${h.id}`} label={`${h.nama}, ${angka(h.biaya)} bintik`} style={s.hadiah}>
+            <KartuTaut key={h.id} href={`/hadiah/${h.id}`} style={s.hadiah}>
               <View style={s.biaya}>
                 <T v="judul3" warna={W.hijauTua}>{angka(h.biaya)}</T>
                 <T v="kecil" warna={W.hijauTua} style={{ fontSize: 11, lineHeight: 13 }}>bintik</T>

@@ -59,7 +59,7 @@ export default function Riwayat() {
           </View>
           <View style={{ gap: 8 }}>
             {g.isi.map((t) => (
-              <Pressable key={t.id} role="button" aria-label={`Struk ${tglPendek(t.waktu)}, ${outletBySlug(t.outlet)?.nama}, ${rupiah(t.total)}`} onPress={() => setBuka(t)} style={s.trx}>
+              <Pressable key={t.id} role="button" onPress={() => setBuka(t)} style={s.trx}>
                 <View style={s.ikon}>
                   <Ikon n={t.jenis === 'ambil' ? 'pesan' : 'struk'} ukuran={20} warna={W.hijau} />
                 </View>

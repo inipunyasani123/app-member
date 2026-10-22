@@ -53,7 +53,7 @@ export default function HalamanPesanan() {
         <View style={{ gap: 10 }}>
           <T v="judul2" h={2}>Pesanan lain</T>
           {lain.map((x) => (
-            <KartuTaut key={x.id} href={{ pathname: '/pesanan', params: { id: x.id } }} label={`Pesanan ${x.nomor}, ${x.status}`} style={s.lain}>
+            <KartuTaut key={x.id} href={{ pathname: '/pesanan', params: { id: x.id } }} style={s.lain}>
               <View style={{ flex: 1 }}>
                 <T v="isiTebal">{x.nomor} · {outletBySlug(x.outlet)?.nama}</T>
                 <T v="kecil">{tglPendek(x.ambil)} {jamMenit(x.ambil)} WIB · {rupiah(x.total)}</T>
