@@ -81,6 +81,11 @@ export default function HalamanLevel() {
         ))}
       </View>
 
+      <Kotak style={{ backgroundColor: W.mentegaPucat, borderColor: W.mentega }}>
+        <T v="judul3" h={2}>Aturannya</T>
+        <T v="isi">Level ditentukan oleh jumlah bintik yang kamu dapat dalam 180 hari terakhir dan dihitung ulang setiap ada bintik masuk. Menukar hadiah tidak menurunkan level. Bintik yang lewat 180 hari tetap bisa ditukar sampai umurnya 12 bulan, hanya tidak lagi dihitung untuk level.</T>
+      </Kotak>
+
       {!d ? <Kerangka tinggi={179} /> : null}
       {d && d.r.berikut ? (
         <Kotak>
@@ -96,10 +101,6 @@ export default function HalamanLevel() {
         </Kotak>
       ) : null}
 
-      <Kotak style={{ backgroundColor: W.mentegaPucat, borderColor: W.mentega }}>
-        <T v="judul3" h={2}>Aturannya</T>
-        <T v="isi">Level ditentukan oleh jumlah bintik yang kamu dapat dalam 180 hari terakhir dan dihitung ulang setiap ada bintik masuk. Menukar hadiah tidak menurunkan level. Bintik yang lewat 180 hari tetap bisa ditukar sampai umurnya 12 bulan, hanya tidak lagi dihitung untuk level.</T>
-      </Kotak>
 
       <View style={{ gap: 12 }}>
         {LEVEL.map((l, i) => {
