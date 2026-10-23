@@ -1,7 +1,8 @@
 // Menulis public/sitemap.xml dari daftar rute + id di src/data. Jalankan ulang bila rute/data berubah.
 import { readFileSync, writeFileSync } from 'node:fs';
 const SITUS = 'https://app-member.pintuweb.id';
-const ambil = (file, pola) => [...readFileSync(file, 'utf8').matchAll(pola)].map((m) => m[1]);
+// Hanya bagian sebelum HADIAH_KHUSUS: hadiah khusus (voucher kartu cap) tidak punya halaman sendiri.
+const ambil = (file, pola) => [...readFileSync(file, 'utf8').split('export const HADIAH_KHUSUS')[0].matchAll(pola)].map((m) => m[1]);
 const hadiah = ambil('src/data/hadiah.ts', /\{ id: '([^']+)', nama: '[^']+', jenis:/g);
 const musiman = ambil('src/data/menu.ts', /id: '([^']+)', nama: '[^']+', kategori: 'musiman'/g);
 const outlet = ambil('src/data/outlet.ts', /slug: '([^']+)', nama:/g);
