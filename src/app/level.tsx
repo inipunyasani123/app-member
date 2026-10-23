@@ -63,7 +63,7 @@ export default function HalamanLevel() {
             )}
           </>
         ) : (
-          <Kerangka tinggi={150} style={{ backgroundColor: 'rgba(250,252,243,0.18)' }} />
+          <Kerangka tinggi={197} style={{ backgroundColor: 'rgba(250,252,243,0.18)' }} />
         )}
       </View>
 
@@ -81,6 +81,7 @@ export default function HalamanLevel() {
         ))}
       </View>
 
+      {!d ? <Kerangka tinggi={179} /> : null}
       {d && d.r.berikut ? (
         <Kotak>
           <T v="judul3" h={2}>Terbuka di {d.r.berikut.nama}</T>

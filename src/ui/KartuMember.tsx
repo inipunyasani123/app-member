@@ -31,20 +31,21 @@ export function KartuMember({ nama, nomor, level, atas, children, benih = 11 }: 
               {level.nama}
             </T>
           </View>
-        ) : null}
+        ) : (
+          <View style={[s.cap, { width: 64, height: 66 }]} aria-hidden />
+        )}
       </View>
       {atas}
       {children}
-      {nama || nomor ? (
-        <View style={s.bawah}>
-          <T v="sub" numberOfLines={1} style={{ flex: 1 }}>
-            {nama ?? ' '}
-          </T>
-          <T v="kode" style={{ fontSize: 13 }} aria-label={nomor ? `Nomor member ${nomor.split(' ').map((g) => g.split('').join(' ')).join(', ')}` : undefined}>
-            {nomor ?? ' '}
-          </T>
-        </View>
-      ) : null}
+      {/* Baris nama selalu ada (juga saat data belum termuat) supaya tinggi kartu tidak berubah. */}
+      <View style={s.bawah}>
+        <T v="sub" numberOfLines={1} style={{ flex: 1 }}>
+          {nama ?? ' '}
+        </T>
+        <T v="kode" style={{ fontSize: 13 }} aria-label={nomor ? `Nomor member ${nomor.split(' ').map((g) => g.split('').join(' ')).join(', ')}` : undefined}>
+          {nomor ?? ' '}
+        </T>
+      </View>
     </View>
   );
 }

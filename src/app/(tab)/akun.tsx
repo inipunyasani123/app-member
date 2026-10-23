@@ -152,7 +152,7 @@ export default function Akun() {
           </Pressable>
         </Link>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          <Tombol teks="Ulangi perkenalan" ragam="garis" ikon="kartu" kecil onPress={() => { ulangiGabung(); router.navigate('/'); }} disabled={!d} />
+          <Tombol teks="Ulangi perkenalan" ragam="garis" ikon="kartu" kecil onPress={() => { ulangiGabung(); router.navigate({ pathname: '/', params: { kenalan: '1' } }); }} disabled={!d} />
           <Tombol teks="Atur ulang data contoh" ragam="bahaya" ikon="ulang" kecil onPress={() => setReset(true)} disabled={!d} />
         </View>
       </Kotak>

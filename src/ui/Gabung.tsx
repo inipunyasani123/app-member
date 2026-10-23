@@ -82,7 +82,8 @@ export function Gabung({ a, level, terbuka, onTutup }: { a: Akun; level: Level; 
 
       {langkah === 0 ? (
         <View style={{ gap: 12 }}>
-          <T v="isi">Ini demo aplikasi member kafe rekaan. Semua datanya contoh, tersimpan di perangkatmu saja, dan jamnya mengikuti WIB.</T>
+          <T v="isiTebal">Ini demo aplikasi member kafe rekaan.</T>
+          <T v="kecil" warna={W.tinta}>Datanya contoh, tersimpan di perangkatmu saja. Jam mengikuti WIB.</T>
           {([
             ['pindai', 'Di tab Kartu ada tombol "Simulasikan pindai kasir" untuk mencoba bintik masuk.'],
             ['pesan', 'Pesan ambil sampai selesai, lalu tekan "Sudah kuambil" untuk menutup pesanan.'],

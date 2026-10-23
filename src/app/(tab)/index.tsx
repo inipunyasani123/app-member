@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Layar, JudulBagian } from '@/ui/Layar';
 import { T } from '@/ui/Teks';
 import { KartuMember } from '@/ui/KartuMember';
@@ -7,12 +8,13 @@ import { Meter } from '@/ui/Meter';
 import { Bintik } from '@/ui/Bintik';
 import { Foto } from '@/ui/Foto';
 import { Ikon } from '@/ui/Ikon';
-import { KartuTaut } from '@/ui/Tombol';
+import { KartuTaut, TombolIkon } from '@/ui/Tombol';
 import { Kerangka, StatusBuka, Lencana } from '@/ui/Kecil';
 import { W, BIBIR } from '@/ui/tema';
 import { KartuCap } from '@/ui/KartuCap';
 import { Gabung } from '@/ui/Gabung';
 import { useData } from '@/lib/pakai';
+import { lewatiGabung } from '@/lib/toko';
 import { voucherAktif } from '@/lib/hitung';
 import { meta } from '@/lib/meta';
 import { angka, jarakKm, rupiah } from '@/lib/format';
@@ -42,17 +44,19 @@ export default function Beranda() {
   const aktifPesanan = d ? d.a.pesanan.find((p) => p.status === 'aktif') : null;
   const mingguIni = d ? d.r.riwayat.filter((e) => e.jumlah > 0 && e.waktu > d.kini - 7 * HARI).reduce((x, e) => x + e.jumlah, 0) : 0;
   const [gabung, setGabung] = useState(false);
+  // Dari Akun > "Ulangi perkenalan": /?kenalan=1 langsung membuka lembar perkenalan.
+  const { kenalan } = useLocalSearchParams<{ kenalan?: string }>();
+  const siap = !!d;
   useEffect(() => {
-    if (d && !d.a.gabung) setGabung(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [d?.a.gabung]);
+    if (kenalan === '1' && siap) setGabung(true);
+  }, [kenalan, siap]);
 
   return (
     <Layar tab>
       <View style={s.kepala}>
         <View style={{ flex: 1, gap: 2 }}>
           <T v="label" warna={W.hijau}>{d ? tglPanjang(d.kini) : 'Kawan Blirik'}</T>
-          <T v="judul1" h={1}>{d ? `${sapaan(d.kini)}, ${nama}` : 'Halo, kawan Blirik'}</T>
+          <T v="judul1" h={1} numberOfLines={2} style={{ minHeight: 70 }}>{d ? `${sapaan(d.kini)}, ${nama}` : 'Halo, kawan Blirik'}</T>
         </View>
         <KartuTaut href="/akun" label="Buka akun dan preferensi" style={s.avatar}>
           <Bintik benih={5} jumlah={24} warna={W.kertas} kuat={0.9} />
@@ -73,15 +77,17 @@ export default function Beranda() {
               </View>
             </View>
             {d ? (
-              <>
+              <View style={s.kemajuan}>
                 <Meter nilai={d.r.terkumpul} maks={d.r.berikut?.min ?? d.r.terkumpul} label={`Kemajuan ke level ${d.r.berikut?.nama ?? 'tertinggi'}`} />
-                <T v="kecil" warna={W.tinta}>
-                  {d.r.berikut ? `${angka(d.r.kurang)} bintik lagi dalam 180 hari untuk naik ke ${d.r.berikut.nama}` : 'Kamu sudah di level tertinggi'}
-                  {mingguIni ? ` · +${angka(mingguIni)} minggu ini` : ''}
-                </T>
-              </>
+                <View>
+                  <T v="kecil" warna={W.tinta} numberOfLines={1}>
+                    {d.r.berikut ? `${angka(d.r.kurang)} bintik lagi ke ${d.r.berikut.nama} (180 hari)` : 'Kamu sudah di level tertinggi'}
+                  </T>
+                  <T v="kecil" warna={W.tinta} numberOfLines={1}>{mingguIni ? `+${angka(mingguIni)} bintik dalam 7 hari terakhir` : 'Belum ada bintik minggu ini'}</T>
+                </View>
+              </View>
             ) : (
-              <Kerangka tinggi={36} />
+              <Kerangka tinggi={63} />
             )}
           </View>
         </KartuMember>
@@ -106,6 +112,18 @@ export default function Beranda() {
       {/* Slot tetap supaya isi di bawahnya tidak bergeser saat data perangkat termuat. */}
       {!d ? (
         <Kerangka tinggi={66} />
+      ) : !d.a.gabung && !aktifPesanan ? (
+        <View style={[s.hangus, s.kenalan]}>
+          <Pressable role="button" onPress={() => setGabung(true)} style={s.kenalanTombol}>
+            <Ikon n="kartu" warna={W.hijauTua} tebal={2.2} />
+            <T v="kecil" warna={W.tinta} style={{ flex: 1 }}>
+              <T v="kecilTebal" warna={W.hijauTua}>Baru di sini? </T>
+              Kenalan dulu dengan aplikasi ini, 3 langkah.
+            </T>
+            <Ikon n="kanan" ukuran={18} warna={W.hijauTua} />
+          </Pressable>
+          <TombolIkon n="tutup" label="Lewati perkenalan" onPress={lewatiGabung} latar={W.mentegaPucat} />
+        </View>
       ) : aktifPesanan ? (
         <KartuTaut href={{ pathname: '/pesanan', params: { id: aktifPesanan.id } }} style={StyleSheet.flatten([s.hangus, s.aman])}>
           <Ikon n="pesan" warna={W.hijau} tebal={2.2} />
@@ -132,10 +150,6 @@ export default function Beranda() {
         </KartuTaut>
       )}
 
-      <KartuTaut href="/promo" style={s.capTaut}>
-        <KartuCap cap={d ? d.a.cap : null} />
-      </KartuTaut>
-
       <JudulBagian judul="Menu musim hujan" href="/promo" tautan="Semua promo" label="Lihat semua promo dan menu musiman" />
       <View style={s.bento}>
         <KartuTaut href={`/promo/${besar.id}`} style={s.bentoBesar}>
@@ -160,6 +174,10 @@ export default function Beranda() {
           ))}
         </View>
       </View>
+
+      <KartuTaut href="/promo" style={s.capTaut}>
+        <KartuCap cap={d ? d.a.cap : null} />
+      </KartuTaut>
 
       <JudulBagian judul="Outlet terdekat" href="/outlet" tautan="Semua outlet" label="Lihat semua outlet" />
       {terdekat && lokasi && d ? (
@@ -222,6 +240,7 @@ export default function Beranda() {
 const s = StyleSheet.create({
   kepala: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 14 },
   avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: W.hijau, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 3, borderColor: W.mentega },
+  kemajuan: { gap: 8, height: 63 },
   tunjuk: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: W.hijau, borderRadius: 999, paddingHorizontal: 12, minHeight: 34, marginBottom: 6 },
   duaKolom: { flexDirection: 'row', gap: 10 },
   ubin: { flex: 1, borderRadius: 24, padding: 16, gap: 6, minHeight: 156, overflow: 'hidden' },
@@ -230,6 +249,8 @@ const s = StyleSheet.create({
   hangus: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.merahPucat, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, minHeight: 66, borderWidth: 1, borderColor: '#EBC3B6' },
   aman: { backgroundColor: W.hijauPucat, borderColor: '#B9CFBF' },
   capTaut: { borderRadius: 22 },
+  kenalan: { backgroundColor: W.mentegaPucat, borderColor: W.mentega, paddingVertical: 6, paddingRight: 8 },
+  kenalanTombol: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50 },
   bento: { flexDirection: 'row', gap: 10, height: 300 },
   bentoBesar: { flex: 1.1, borderRadius: 24, overflow: 'hidden', backgroundColor: W.garis, justifyContent: 'flex-end' },
   bentoTeks: { padding: 14, gap: 4, backgroundColor: 'rgba(15,53,36,0.82)' },
