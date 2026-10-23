@@ -7,7 +7,7 @@
     "scheme": "kopiblirik",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#F4EEE1",
+    "backgroundColor": "#E7EEDF",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "id.pintuweb.demo.kopiblirik"

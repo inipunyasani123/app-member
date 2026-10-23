@@ -7,8 +7,11 @@ import { Foto } from '@/ui/Foto';
 import { Ikon } from '@/ui/Ikon';
 import { Tombol, Chip, TombolIkon } from '@/ui/Tombol';
 import { Kerangka, Kotak, StatusBuka, Lencana, Medali } from '@/ui/Kecil';
+import { Bintik } from '@/ui/Bintik';
+import { Svg, Path, Rect } from '@/ui/svg';
+import type { ItemPesan, Pref } from '@/lib/jenis';
 import { Lembar } from '@/ui/Lembar';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import { useKeranjang, tambahKeKeranjang, ubahQty, kosongkanKeranjang, buatPesanan } from '@/lib/toko';
 import { buatItem, hitungBintik, nilaiVoucher, potonganPagi, subtotalDari, type Opsi } from '@/lib/keranjang';
@@ -18,6 +21,13 @@ import { angka, rupiah } from '@/lib/format';
 import { tglPendek } from '@/lib/waktu';
 import { KATEGORI, MENU, HARGA_BESAR, HARGA_OAT, HARGA_SHOT, menuById, type Kategori, type Menu } from '@/data/menu';
 import { OUTLET, outletBySlug, slotAmbil, statusBuka } from '@/data/outlet';
+
+/** Empat menu yang paling sering ada di riwayat transaksi. */
+function seringDipesan(trx: { item: { menuId: string; qty: number }[] }[]) {
+  const hitung = new Map<string, number>();
+  for (const t of trx) for (const i of t.item) hitung.set(i.menuId, (hitung.get(i.menuId) || 0) + i.qty);
+  return [...hitung].sort((x, y) => y[1] - x[1]).slice(0, 4).map(([id]) => menuById(id)).filter((m): m is Menu => !!m);
+}
 
 export function generateMetadata() {
   return meta({
@@ -31,11 +41,17 @@ export default function Pesan() {
   const d = useData();
   const k = useKeranjang();
   const q = useLocalSearchParams<{ menu?: string; outlet?: string }>();
-  const [kat, setKat] = useState<Kategori>('musiman');
+  const [kat, setKat] = useState<Kategori | 'sering'>('musiman');
   const [outletPilih, setOutletPilih] = useState<string | null>(null);
   const [gantiOutlet, setGantiOutlet] = useState(false);
   const [menuBuka, setMenuBuka] = useState<Menu | null>(null);
   const [kasir, setKasir] = useState(false);
+  const [toast, setToast] = useState<{ kunci: string; nama: string; qty: number } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   useEffect(() => {
     if (q.outlet && outletBySlug(q.outlet)) setOutletPilih(q.outlet);
@@ -50,7 +66,8 @@ export default function Pesan() {
 
   const slug = outletPilih ?? d?.a.outletFav ?? 'tulungagung';
   const outlet = outletBySlug(slug)!;
-  const daftar = MENU.filter((m) => m.kategori === kat);
+  const sering = d ? seringDipesan(d.a.trx) : [];
+  const daftar = kat === 'sering' ? sering : MENU.filter((m) => m.kategori === kat);
   const jumlah = k.reduce((s, i) => s + i.qty, 0);
   const sub = subtotalDari(k);
 
@@ -58,15 +75,28 @@ export default function Pesan() {
     <Layar
       tab
       bawah={
-        jumlah > 0 ? (
-          <View style={s.bilah}>
-            <View style={{ flex: 1 }}>
-              <T v="kecilTebal" warna={W.hijauPucat}>{jumlah} item · ambil di {outlet.nama}</T>
-              <T v="judul3" warna={W.kertas}>{rupiah(sub)}</T>
-            </View>
-            <Tombol teks="Lanjut" ragam="mentega" onPress={() => setKasir(true)} disabled={!d} />
+        <>
+          <View aria-live="polite" style={[s.toastWadah, { bottom: jumlah > 0 ? 92 : 12 }]} pointerEvents="box-none">
+            {toast ? (
+              <View style={s.toast}>
+                <Ikon n="centang" ukuran={18} warna={W.mentega} tebal={2.4} />
+                <T v="kecilTebal" warna={W.kertas} style={{ flex: 1 }} numberOfLines={1}>+{toast.qty} {toast.nama}</T>
+                <Pressable role="button" onPress={() => { ubahQty(toast.kunci, -toast.qty); setToast(null); }} style={s.urungkan} hitSlop={6}>
+                  <T v="kecilTebal" warna={W.mentega} style={{ textDecorationLine: 'underline' }}>Urungkan</T>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
-        ) : null
+          {jumlah > 0 ? (
+            <View style={s.bilah}>
+              <View style={{ flex: 1 }}>
+                <T v="kecilTebal" warna={W.hijauPucat}>{jumlah} item · ambil di {outlet.nama}</T>
+                <T v="judul3" warna={W.kertas}>{rupiah(sub)}</T>
+              </View>
+              <Tombol teks="Lanjut" ragam="mentega" onPress={() => setKasir(true)} disabled={!d} />
+            </View>
+          ) : null}
+        </>
       }
     >
       <Pita label="Pesan ambil" judul="Pesan dulu, ambil tanpa antre" />
@@ -87,6 +117,7 @@ export default function Pesan() {
         {KATEGORI.map((c) => (
           <Chip key={c.id} teks={c.nama} aktif={kat === c.id} onPress={() => setKat(c.id)} />
         ))}
+        <Chip teks="Sering kamu pesan" aktif={kat === 'sering'} onPress={() => setKat('sering')} />
       </View>
 
       <View style={{ gap: 10 }}>
@@ -141,16 +172,29 @@ export default function Pesan() {
         </View>
       </Lembar>
 
-      {menuBuka ? <LembarMenu m={menuBuka} pref={d?.a.pref} onTutup={() => setMenuBuka(null)} /> : null}
+      {menuBuka ? (
+        <LembarMenu
+          m={menuBuka}
+          pref={d?.a.pref}
+          kali={d?.r.level.kali ?? 1}
+          onTutup={() => setMenuBuka(null)}
+          onMasuk={(it) => {
+            tambahKeKeranjang(it);
+            setMenuBuka(null);
+            setToast({ kunci: it.kunci, nama: it.nama, qty: it.qty });
+          }}
+        />
+      ) : null}
       {d ? <LembarKasir terbuka={kasir} onTutup={() => setKasir(false)} outletSlug={slug} data={d} /> : null}
     </Layar>
   );
 }
 
-function LembarMenu({ m, pref, onTutup }: { m: Menu; pref?: { susu: 'sapi' | 'oat'; gula: 'normal' | 'kurang' | 'tanpa'; es: 'normal' | 'sedikit'; ukuran: 'sedang' | 'besar' }; onTutup: () => void }) {
+function LembarMenu({ m, pref, kali, onTutup, onMasuk }: { m: Menu; pref?: Pref; kali: number; onTutup: () => void; onMasuk: (it: ItemPesan) => void }) {
   const [o, setO] = useState<Opsi>({ suhu: m.suhu === 'panas' ? 'panas' : 'es', ukuran: pref?.ukuran ?? 'sedang', gula: pref?.gula ?? 'normal', susu: pref?.susu ?? 'sapi', es: pref?.es ?? 'normal', shot: false });
   const [qty, setQty] = useState(1);
   const it = buatItem(m, o, qty);
+  const b = hitungBintik([it], it.harga * qty, kali);
   const atur = (p: Partial<Opsi>) => setO((x) => ({ ...x, ...p }));
   const grup = (label: string, pilihan: { teks: string; aktif: boolean; tekan: () => void }[]) => (
     <View style={{ gap: 8 }}>
@@ -169,27 +213,55 @@ function LembarMenu({ m, pref, onTutup }: { m: Menu; pref?: { susu: 'sapi' | 'oa
       onTutup={onTutup}
       judul={m.nama}
       bawah={
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={s.qty}>
-            <TombolIkon n="kurang" label="Kurangi jumlah" onPress={() => setQty((x) => Math.max(1, x - 1))} ukuran={40} />
-            <T v="judul3" aria-label={`Jumlah ${qty}`} style={{ minWidth: 22, textAlign: 'center' }}>{qty}</T>
-            <TombolIkon n="tambah" label="Tambah jumlah" onPress={() => setQty((x) => Math.min(9, x + 1))} ukuran={40} />
+        <View style={{ gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T v="kecil" warna={W.tinta} numberOfLines={1} style={{ flex: 1 }}>{it.opsi.length ? it.opsi.join(' · ') : 'Satu porsi'}</T>
+            <Lencana teks={`+${angka(b.jumlah)} bintik${b.bonus ? ' · 2×' : ''}`} ragam="mentega" />
           </View>
-          <Tombol
-            teks={`Masukkan · ${rupiah(it.harga * qty)}`}
-            style={{ flex: 1 }}
-            penuh
-            onPress={() => {
-              tambahKeKeranjang(it);
-              onTutup();
-            }}
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={s.qty}>
+              <TombolIkon n="kurang" label="Kurangi jumlah" onPress={() => setQty((x) => Math.max(1, x - 1))} ukuran={44} />
+              <T v="judul3" aria-label={`Jumlah ${qty}`} style={{ minWidth: 22, textAlign: 'center' }}>{qty}</T>
+              <TombolIkon n="tambah" label="Tambah jumlah" onPress={() => setQty((x) => Math.min(9, x + 1))} ukuran={44} />
+            </View>
+            <Tombol teks={`Masukkan · ${rupiah(it.harga * qty)}`} style={{ flex: 1 }} penuh onPress={() => onMasuk(it)} />
+          </View>
         </View>
       }
     >
-      <T v="kecil">{m.desk}</T>
+      <View style={s.kepalaMenu}>
+        {m.foto ? (
+          <Foto k={m.foto} bentuk="l" alt={m.nama} lebarTampil={360} />
+        ) : (
+          <View style={s.kepalaIlustrasi}>
+            <Bintik benih={m.harga} jumlah={60} kuat={0.8} />
+            <Medali ikon={m.suhu ? 'cangkir' : 'piring'} ukuran={84} />
+          </View>
+        )}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+        <T v="judul2" warna={W.hijau}>{rupiah(m.harga)}</T>
+        {m.kategori === 'musiman' ? <Lencana teks="Musim hujan · bintik 2×" ragam="mentega" ikon="hujan" /> : null}
+      </View>
+      <T v="kecil" warna={W.tinta}>{m.desk}</T>
       {m.suhu === 'keduanya' ? grup('Suhu', [{ teks: 'Es', aktif: o.suhu === 'es', tekan: () => atur({ suhu: 'es' }) }, { teks: 'Panas', aktif: o.suhu === 'panas', tekan: () => atur({ suhu: 'panas' }) }]) : null}
-      {m.suhu ? grup('Ukuran', [{ teks: 'Sedang', aktif: o.ukuran === 'sedang', tekan: () => atur({ ukuran: 'sedang' }) }, { teks: `Besar +${rupiah(HARGA_BESAR)}`, aktif: o.ukuran === 'besar', tekan: () => atur({ ukuran: 'besar' }) }]) : null}
+      {m.suhu ? (
+        <View style={{ gap: 8 }}>
+          <T v="label">Ukuran</T>
+          <View role="radiogroup" aria-label="Ukuran" style={{ flexDirection: 'row', gap: 10 }}>
+            {([['sedang', 'Sedang', '250 ml', 0], ['besar', 'Besar', '400 ml', HARGA_BESAR]] as const).map(([id, nama, isi, tambah]) => {
+              const aktif = o.ukuran === id;
+              return (
+                <Pressable key={id} role="radio" aria-checked={aktif} aria-label={`${nama}, ${isi}${tambah ? `, tambah ${rupiah(tambah)}` : ''}`} onPress={() => atur({ ukuran: id })} style={[s.ubinUkuran, aktif && s.ubinAktif]}>
+                  <CangkirUkuran besar={id === 'besar'} aktif={aktif} />
+                  <T v="isiTebal" warna={aktif ? W.hijauTua : W.tinta}>{nama}</T>
+                  <T v="kecil">{isi} · {tambah ? `+${rupiah(tambah)}` : 'harga menu'}</T>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
       {m.gula ? grup('Gula', [
         { teks: 'Normal', aktif: o.gula === 'normal', tekan: () => atur({ gula: 'normal' }) },
         { teks: 'Sedikit', aktif: o.gula === 'kurang', tekan: () => atur({ gula: 'kurang' }) },
@@ -206,6 +278,18 @@ function LembarMenu({ m, pref, onTutup }: { m: Menu; pref?: { susu: 'sapi' | 'oa
         </View>
       ) : null}
     </Lembar>
+  );
+}
+
+/** Cangkir enamel kecil/besar untuk ubin ukuran (gambar sendiri). */
+function CangkirUkuran({ besar, aktif }: { besar: boolean; aktif: boolean }) {
+  const t = besar ? 34 : 24;
+  return (
+    <Svg width={48} height={44} viewBox="0 0 48 44">
+      <Path d={`M${besar ? 33 : 30} ${44 - t + 6}h3a5 5 0 0 1 0 10h-3`} fill="none" stroke={W.hijau} strokeWidth={3} strokeLinecap="round" />
+      <Path d={`M${besar ? 9 : 12} ${44 - t}h${besar ? 24 : 18}v${t - 6}a5 5 0 0 1-5 5h-${besar ? 14 : 8}a5 5 0 0 1-5-5z`} fill={aktif ? W.hijau : W.kertas} stroke={W.hijau} strokeWidth={2.2} />
+      <Rect x={besar ? 7 : 10} y={44 - t - 3} width={besar ? 28 : 22} height={5} rx={2.5} fill={aktif ? W.mentega : W.hijau} />
+    </Svg>
   );
 }
 
@@ -253,9 +337,9 @@ function LembarKasir({ terbuka, onTutup, outletSlug, data }: { terbuka: boolean;
             <T v="kecil" warna={W.tinta}>{rupiah(i.harga)} / item</T>
           </View>
           <View style={s.qty}>
-            <TombolIkon n="kurang" label={`Kurangi ${i.nama}`} onPress={() => ubahQty(i.kunci, -1)} ukuran={36} />
+            <TombolIkon n="kurang" label={`Kurangi ${i.nama}`} onPress={() => ubahQty(i.kunci, -1)} ukuran={44} />
             <T v="isiTebal" style={{ minWidth: 18, textAlign: 'center' }}>{i.qty}</T>
-            <TombolIkon n="tambah" label={`Tambah ${i.nama}`} onPress={() => ubahQty(i.kunci, 1)} ukuran={36} />
+            <TombolIkon n="tambah" label={`Tambah ${i.nama}`} onPress={() => ubahQty(i.kunci, 1)} ukuran={44} />
           </View>
         </View>
       ))}
@@ -328,8 +412,15 @@ const s = StyleSheet.create({
   outlet: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10 },
   outletFoto: { width: 64, height: 64, borderRadius: 14, overflow: 'hidden', backgroundColor: W.garis },
   kategori: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  menu: { flexDirection: 'row', gap: 12, backgroundColor: W.kertas, borderRadius: 20, borderWidth: 1, borderColor: W.garis, padding: 10, alignItems: 'flex-start' },
+  menu: { flexDirection: 'row', gap: 12, backgroundColor: W.kertas, borderRadius: 20, ...BIBIR, padding: 10, alignItems: 'flex-start' },
   menuFoto: { width: 72, height: 72, borderRadius: 16, overflow: 'hidden', backgroundColor: W.garis },
+  toastWadah: { position: 'absolute', left: 12, right: 12 },
+  toast: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.karat, borderRadius: 16, paddingLeft: 14, paddingRight: 6, minHeight: 48 },
+  urungkan: { minHeight: 44, minWidth: 44, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
+  kepalaMenu: { height: 180, borderRadius: 20, overflow: 'hidden', backgroundColor: W.hijauPucat, borderWidth: 1, borderColor: W.garis, borderTopWidth: 4, borderTopColor: W.hijau },
+  kepalaIlustrasi: { flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  ubinUkuran: { flex: 1, alignItems: 'center', gap: 2, borderWidth: 2, borderColor: W.garisKuat, borderRadius: 18, paddingVertical: 10, backgroundColor: W.kertas, minHeight: 44 },
+  ubinAktif: { borderColor: W.hijau, backgroundColor: W.hijauPucat },
   bilah: { position: 'absolute', left: 12, right: 12, bottom: 10, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.hijau, borderRadius: 22, padding: 12, paddingLeft: 16, borderWidth: 2, borderColor: W.hijauTua },
   pilihOutlet: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, borderColor: W.garis, borderRadius: 18, padding: 12, backgroundColor: W.kertas },
   qty: { flexDirection: 'row', alignItems: 'center', gap: 8 },

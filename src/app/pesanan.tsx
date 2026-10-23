@@ -6,7 +6,7 @@ import { Ikon } from '@/ui/Ikon';
 import { Tombol, TautanTombol, KartuTaut } from '@/ui/Tombol';
 import { Kerangka, Kotak, Kosong, Lencana } from '@/ui/Kecil';
 import { Bintik, Gompal } from '@/ui/Bintik';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import { ambilPesanan, batalPesanan } from '@/lib/toko';
 import type { Pesanan } from '@/lib/jenis';
@@ -45,8 +45,11 @@ export default function HalamanPesanan() {
       <T v="judul1" h={1} style={{ marginTop: 10 }}>{p ? `Pesanan ${p.nomor}` : 'Pesanan ambil'}</T>
       {!d ? <Kerangka tinggi={360} /> : p ? <Rincian p={p} kini={d.kini} /> : (
         <>
-          {lain.length === 0 ? <Kosong judul="Belum ada pesanan" isi="Pesan minuman dari tab Pesan, lalu ambil di outlet tanpa antre." ikon="pesan" /> : null}
-          <TautanTombol href="/pesan" teks="Buat pesanan" ikon="pesan" />
+          <Kosong
+            judul={lain.length ? 'Pilih pesanan di bawah' : 'Belum ada pesanan'}
+            isi="Pesan Kopi Susu Blirik sekarang, ambil 15 menit lagi tanpa antre."
+            aksi={<TautanTombol href={{ pathname: '/pesan', params: { menu: 'kopi-susu-blirik' } }} teks="Pesan Kopi Susu Blirik" ikon="pesan" />}
+          />
         </>
       )}
       {d && lain.length ? (
@@ -137,5 +140,5 @@ function Rincian({ p, kini }: { p: Pesanan; kini: number }) {
 const s = StyleSheet.create({
   nomor: { backgroundColor: W.hijau, borderRadius: 28, padding: 20, alignItems: 'center', gap: 4, overflow: 'hidden', borderWidth: 4, borderColor: W.hijauTua },
   titik: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: W.garisKuat, alignItems: 'center', justifyContent: 'center' },
-  lain: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.kertas, borderRadius: 18, borderWidth: 1, borderColor: W.garis, padding: 12 },
+  lain: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.kertas, borderRadius: 18, ...BIBIR, padding: 12 },
 });

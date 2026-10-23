@@ -1,23 +1,27 @@
 import { Platform, type TextStyle } from 'react-native';
 
-// Palet enamel blirik: krem email, hijau tepi cangkir, cap merah, mentega, dan besi gompal.
-// Semua pasangan teks/latar yang dipakai sudah dicek >= 4.5:1.
+// Palet enamel blirik: krem email kehijauan, hijau tepi cangkir (dominan), cap merah, mentega, besi gompal.
+// Teks/latar >= 4.5:1, garis kontrol >= 3:1 (dicek 23 Okt 2026).
 export const W = {
-  enamel: '#F3EDE0',
-  kertas: '#FFFCF4',
+  enamel: '#E7EEDF',
+  kertas: '#FAFCF3',
   hijau: '#1B5536',
   hijauTua: '#0F3524',
-  hijauPucat: '#E1ECE3',
-  tinta: '#1A1F1B',
-  abu: '#545B55',
-  garis: '#E2D8C6',
-  garisKuat: '#857D6B',
-  merah: '#A8341D',
-  merahPucat: '#F7E2DA',
+  hijauPucat: '#D6E7D9',
+  tinta: '#18201B',
+  abu: '#4B564D',
+  garis: '#C7D7C6',
+  garisKuat: '#66755F',
+  tepi: '#3F7A58',
+  merah: '#A0311B',
+  merahPucat: '#F5DED6',
   mentega: '#F0C14B',
-  mentegaPucat: '#FBEFC9',
+  mentegaPucat: '#FAEEC6',
   karat: '#262B27',
 } as const;
+
+/** Bibir enamel: tepi atas hijau tebal pada kartu, seperti bibir cangkir blirik. */
+export const BIBIR = { borderWidth: 1, borderColor: '#C7D7C6', borderTopWidth: 4, borderTopColor: '#1B5536' } as const;
 
 type Berat = 400 | 600 | 800;
 

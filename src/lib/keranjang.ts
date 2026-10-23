@@ -49,6 +49,11 @@ export function nilaiVoucher(v: Voucher, item: ItemPesan[]): { nilai: number; al
       if (!min.length) return { nilai: 0, alasan: 'Pilih minuman ukuran besar dulu' };
       return { nilai: Math.max(...min.map((i) => i.harga - (i.shot ? HARGA_SHOT : 0) - (i.opsi.includes('Susu oat') ? HARGA_OAT : 0))) };
     }
+    case 'gratis-musiman': {
+      const mus = item.filter((i) => i.musiman && i.minuman);
+      if (!mus.length) return { nilai: 0, alasan: 'Tambahkan minuman musim hujan dulu' };
+      return { nilai: Math.max(...mus.map((i) => i.harga - (i.besar ? HARGA_BESAR : 0) - (i.shot ? HARGA_SHOT : 0) - (i.opsi.includes('Susu oat') ? HARGA_OAT : 0))) };
+    }
     default:
       return { nilai: 0, alasan: 'Tukarkan langsung di kasir' };
   }

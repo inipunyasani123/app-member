@@ -14,8 +14,8 @@ mkdirSync(keluar, { recursive: true });
 const FOTO = {
   'kopi-susu-blirik': { k: [0.47, 0.64, 0.78], l: [0.5, 0.6, 1] },
   'es-kopi-kelapa': { k: [0.42, 0.5, 0.82], l: [0.42, 0.46, 0.84] },
-  'wedang-jahe-aren': { k: [0.5, 0.42, 1], l: [0.5, 0.42, 1] },
-  'cokelat-kayu-manis': { k: [0.5, 0.5, 0.62], l: [0.5, 0.5, 0.95] },
+  'wedang-jahe-aren': { k: [0.5, 0.52, 0.92], l: [0.5, 0.55, 1] },
+  'cokelat-kayu-manis': { k: [0.36, 0.5, 0.64], l: [0.45, 0.5, 1] },
   'roti-bakar-cokelat': { k: [0.48, 0.42, 0.95], l: [0.5, 0.4, 1] },
   'pisang-goreng-madu': { k: [0.5, 0.52, 0.95], l: [0.5, 0.5, 1] },
   'cangkir-enamel': { k: [0.5, 0.55, 0.66], l: [0.45, 0.5, 0.95] },

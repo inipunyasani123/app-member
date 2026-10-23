@@ -4,18 +4,23 @@ import { useLocalSearchParams } from 'expo-router';
 import { Layar } from '@/ui/Layar';
 import { T } from '@/ui/Teks';
 import { Ikon } from '@/ui/Ikon';
-import { Chip, Tombol, TautanTombol } from '@/ui/Tombol';
-import { Kerangka, Kosong, Lencana } from '@/ui/Kecil';
+import { Chip, Tombol, TautanTombol, KartuTaut } from '@/ui/Tombol';
+import { Kerangka, Kosong, Lencana, Kotak } from '@/ui/Kecil';
+import { GambarHadiah } from '@/ui/GambarHadiah';
+import { HADIAH } from '@/data/hadiah';
+import { urutanLevel } from '@/data/level';
+import { angka } from '@/lib/format';
+import type { NamaIkon } from '@/ui/Ikon';
 import { Tiket } from '@/ui/Tiket';
 import { Lembar } from '@/ui/Lembar';
 import { QR } from '@/ui/QR';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import { pakaiVoucher } from '@/lib/toko';
 import { statusVoucher } from '@/lib/hitung';
 import type { Voucher } from '@/lib/jenis';
 import { meta } from '@/lib/meta';
-import { tglSedang, relatifHari } from '@/lib/waktu';
+import { tglSedang, relatifHari, selisihHari } from '@/lib/waktu';
 
 export function generateMetadata() {
   return meta({
@@ -52,21 +57,26 @@ export default function HalamanVoucher() {
   return (
     <Layar judul="Voucher saya" induk="/hadiah">
       <T v="judul1" h={1} style={{ marginTop: 10 }}>Voucher saya</T>
+      <T v="isi" style={s.pengantar}>
+        Voucher hasil tukar bintik dan kartu cap musim hujan. Tunjukkan QR-nya ke kasir atau pilih saat pesan ambil. Semua berlaku sampai pukul 23.59 WIB di hari terakhir.
+      </T>
       <View role="tablist" aria-label="Status voucher" style={s.tab}>
         {TAB.map((t) => (
           <Chip key={t.id} peran="tab" teks={`${t.nama}${d ? ` (${hitung(t.id)})` : ''}`} aktif={tab === t.id} onPress={() => setTab(t.id)} kecil />
         ))}
       </View>
       {!d ? <Kerangka tinggi={220} /> : daftar.length === 0 ? (
-        <>
-          <Kosong judul={tab === 'aktif' ? 'Belum ada voucher aktif' : 'Kosong'} isi={tab === 'aktif' ? 'Tukar bintik di katalog hadiah, vouchernya muncul di sini.' : 'Belum ada voucher di bagian ini.'} ikon="voucher" />
-          {tab === 'aktif' ? <TautanTombol href="/hadiah" teks="Buka katalog hadiah" ikon="hadiah" /> : null}
-        </>
+        <Kosong
+          judul={tab === 'aktif' ? 'Belum ada voucher aktif' : tab === 'terpakai' ? 'Belum ada voucher terpakai' : 'Tidak ada voucher yang lewat'}
+          isi={tab === 'aktif' ? 'Tukar bintik di katalog hadiah, vouchernya langsung tercetak di sini.' : tab === 'terpakai' ? 'Voucher yang sudah dipakai di kasir atau pesan ambil muncul di sini.' : 'Bagus, belum ada voucher yang terlewat masa berlakunya.'}
+          aksi={tab === 'aktif' ? <TautanTombol href="/hadiah" teks="Buka katalog hadiah" ikon="hadiah" /> : undefined}
+        />
       ) : (
         <View style={{ gap: 12 }}>
           {daftar.map((v) => {
             const st = statusVoucher(v, d.kini);
-            const mepet = st === 'aktif' && v.berlaku - d.kini < 3 * 86400000;
+            const sisaHari = Math.max(0, selisihHari(d.kini, v.berlaku));
+            const mepet = st === 'aktif' && sisaHari <= 2;
             return (
               <Pressable key={v.kode} role="button" onPress={() => setBuka(v)}>
                 <Tiket
@@ -75,9 +85,11 @@ export default function HalamanVoucher() {
                     <>
                       <T v="isiTebal" warna={st === 'aktif' ? W.tinta : W.abu}>{v.nama}</T>
                       <T v="kode" warna={st === 'aktif' ? W.hijauTua : W.abu} style={st !== 'aktif' ? { textDecorationLine: 'line-through' } : undefined}>{v.kode}</T>
-                      <T v="kecil" warna={mepet ? W.merah : W.abu}>
-                        {st === 'aktif' ? `Berlaku sampai ${tglSedang(v.berlaku)} (${relatifHari(v.berlaku, d.kini)})` : st === 'terpakai' ? `Terpakai ${tglSedang(v.dipakai ?? v.dibuat)}` : `Berakhir ${tglSedang(v.berlaku)}`}
-                      </T>
+                      {st === 'aktif' ? (
+                        <Lencana teks={sisaHari <= 0 ? 'Berakhir hari ini' : `Sisa ${sisaHari} hari · ${tglSedang(v.berlaku)}`} ragam={mepet ? 'merah' : 'mentega'} ikon="jam" />
+                      ) : (
+                        <T v="kecil" warna={W.abu}>{st === 'terpakai' ? `Terpakai ${tglSedang(v.dipakai ?? v.dibuat)}` : `Berakhir ${tglSedang(v.berlaku)}`}</T>
+                      )}
                     </>
                   }
                   kanan={
@@ -96,6 +108,39 @@ export default function HalamanVoucher() {
           })}
         </View>
       )}
+
+      <Kotak>
+        <T v="judul3" h={2}>Cara pakai voucher</T>
+        {([
+          ['pindai', 'Di kasir: buka voucher, tunjukkan QR atau sebutkan kodenya sebelum membayar.'],
+          ['pesan', 'Pesan ambil: pilih voucher di ringkasan pesanan, potongannya langsung dihitung.'],
+          ['jam', 'Satu voucher untuk satu transaksi, berlaku sampai 23.59 WIB di hari terakhir.'],
+        ] as [NamaIkon, string][]).map(([ikon, teks], i) => (
+          <View key={ikon} style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+            <View style={s.nomor}><T v="kecilTebal" warna={W.kertas}>{i + 1}</T></View>
+            <T v="isi" style={{ flex: 1 }}>{teks}</T>
+            <Ikon n={ikon} ukuran={20} warna={W.hijau} />
+          </View>
+        ))}
+      </Kotak>
+
+      {d ? (
+        <View style={{ gap: 10 }}>
+          <T v="judul2" h={2}>Tukar lagi</T>
+          {HADIAH.filter((h) => h.biaya <= d.r.saldo && (!h.minLevel || urutanLevel(d.r.level.id) >= urutanLevel(h.minLevel)))
+            .sort((x, y) => y.biaya - x.biaya)
+            .slice(0, 3)
+            .map((h) => (
+              <KartuTaut key={h.id} href={`/hadiah/${h.id}`} style={s.tukar}>
+                <View style={s.tukarGambar}>
+                  <GambarHadiah h={h} tinggi={56} ukuranIlustrasi={56} />
+                </View>
+                <T v="isiTebal" style={{ flex: 1 }}>{h.nama}</T>
+                <T v="nominal" warna={W.hijauTua}>{angka(h.biaya)}</T>
+              </KartuTaut>
+            ))}
+        </View>
+      ) : null}
 
       <Lembar terbuka={!!bukaKini} onTutup={() => setBuka(null)} judul={bukaKini?.nama ?? 'Voucher'}
         bawah={bukaKini && d && statusVoucher(bukaKini, d.kini) === 'aktif' ? <Tombol teks="Simulasikan: dipakai kasir" ragam="garis" penuh onPress={() => { pakaiVoucher(bukaKini.kode); setBuka(null); }} /> : undefined}
@@ -116,4 +161,10 @@ export default function HalamanVoucher() {
   );
 }
 
-const s = StyleSheet.create({ tab: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 } });
+const s = StyleSheet.create({
+  tab: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  pengantar: { maxWidth: 520 },
+  nomor: { width: 26, height: 26, borderRadius: 13, backgroundColor: W.hijau, alignItems: 'center', justifyContent: 'center' },
+  tukar: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.kertas, borderRadius: 18, padding: 8, ...BIBIR },
+  tukarGambar: { width: 56, height: 56, borderRadius: 12, overflow: 'hidden' },
+});

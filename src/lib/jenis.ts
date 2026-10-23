@@ -82,4 +82,8 @@ export type Akun = {
   voucher: Voucher[];
   trx: Trx[];
   pesanan: Pesanan[];
+  /** Cap kartu musim hujan (0–5); penuh 6 = voucher minuman musim hujan. */
+  cap: number;
+  /** Sudah melewati perkenalan "Gabung Kawan Blirik". */
+  gabung: boolean;
 };

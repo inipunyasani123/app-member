@@ -14,6 +14,9 @@ export type Outlet = {
   lng: number;
   jam: Jam[];
   fasilitas: string[];
+  /** Perkiraan keramaian per jam (rekaan), indeks 0 = 06.00 … 17 = 23.00, skala 0–4. */
+  ramai: number[];
+  bayar: string[];
 };
 
 const j = (a: string, b: string): Jam => {
@@ -31,7 +34,9 @@ export const OUTLET: Outlet[] = [
     catatan: 'Outlet pertama. Biji kopi untuk semua outlet disangrai di sini tiap Selasa dan Jumat pagi.',
     foto: 'outlet-tulungagung', lat: -8.0657, lng: 111.902,
     jam: [j('07.00', '22.00'), j('07.00', '22.00'), j('07.00', '22.00'), j('07.00', '22.00'), j('07.00', '22.00'), j('07.00', '23.00'), j('07.00', '23.00')],
-    fasilitas: ['Colokan di tiap meja', 'Musala', 'Parkir motor dan mobil', 'Akses kursi roda'],
+    fasilitas: ['Colokan di tiap meja', 'Musala', 'Parkir motor dan mobil', 'Akses kursi roda', 'Area merokok terpisah'],
+    ramai: [0, 2, 3, 2, 1, 1, 2, 2, 1, 1, 2, 3, 4, 4, 3, 2, 1, 0],
+    bayar: ['QRIS', 'Tunai', 'Kartu debit'],
   },
   {
     slug: 'kediri', nama: 'Blirik Kediri', kota: 'Kediri', julukan: 'Bar Seduh',
@@ -39,7 +44,9 @@ export const OUTLET: Outlet[] = [
     catatan: 'Bar kecil dengan mesin espresso hijau tua. Paling ramai jam pulang kantor.',
     foto: 'outlet-kediri', lat: -7.8166, lng: 112.0114,
     jam: [j('08.00', '22.00'), j('07.00', '21.00'), j('07.00', '21.00'), j('07.00', '21.00'), j('07.00', '21.00'), j('07.00', '21.00'), j('08.00', '22.00')],
-    fasilitas: ['Colokan di tiap meja', 'Parkir motor', 'Wi-Fi'],
+    fasilitas: ['Colokan di tiap meja', 'Parkir motor', 'Wi-Fi', 'Area merokok terpisah'],
+    ramai: [0, 2, 2, 1, 1, 1, 2, 1, 1, 2, 3, 4, 4, 3, 2, 1, 0, 0],
+    bayar: ['QRIS', 'Tunai'],
   },
   {
     slug: 'blitar', nama: 'Blirik Blitar', kota: 'Blitar', julukan: 'Jendela Hijau',
@@ -48,6 +55,8 @@ export const OUTLET: Outlet[] = [
     foto: 'outlet-blitar', lat: -8.0983, lng: 112.1681,
     jam: [j('08.00', '21.30'), null, j('08.00', '21.30'), j('08.00', '21.30'), j('08.00', '21.30'), j('08.00', '21.30'), j('08.00', '21.30')],
     fasilitas: ['Area luar ruang', 'Ramah anak', 'Parkir motor', 'Akses kursi roda'],
+    ramai: [0, 0, 2, 2, 1, 1, 2, 2, 2, 2, 3, 3, 4, 3, 2, 1, 0, 0],
+    bayar: ['QRIS', 'Tunai'],
   },
   {
     slug: 'malang', nama: 'Blirik Malang', kota: 'Malang', julukan: 'Meja Panjang',
@@ -56,6 +65,8 @@ export const OUTLET: Outlet[] = [
     foto: 'outlet-malang', lat: -7.9666, lng: 112.6326,
     jam: [j('06.30', '22.00'), j('06.30', '22.00'), j('06.30', '22.00'), j('06.30', '22.00'), j('06.30', '22.00'), j('06.30', '22.00'), j('06.30', '22.00')],
     fasilitas: ['Colokan di tiap meja', 'Wi-Fi', 'Musala', 'Parkir motor'],
+    ramai: [2, 3, 4, 3, 2, 2, 3, 2, 2, 2, 3, 3, 3, 3, 2, 2, 1, 0],
+    bayar: ['QRIS', 'Tunai', 'Kartu debit'],
   },
   {
     slug: 'surabaya', nama: 'Blirik Surabaya', kota: 'Surabaya', julukan: 'Tembok Bata',
@@ -63,7 +74,9 @@ export const OUTLET: Outlet[] = [
     catatan: 'Outlet terbesar dengan tembok bata ekspos. Jumat dan Sabtu buka sampai lewat tengah malam.',
     foto: 'outlet-surabaya', lat: -7.2575, lng: 112.7521,
     jam: [j('08.00', '23.00'), j('08.00', '23.00'), j('08.00', '23.00'), j('08.00', '23.00'), j('08.00', '23.00'), j('08.00', '00.30'), j('08.00', '00.30')],
-    fasilitas: ['Colokan di tiap meja', 'Musala', 'Parkir motor dan mobil', 'Area luar ruang', 'Akses kursi roda'],
+    fasilitas: ['Colokan di tiap meja', 'Wi-Fi', 'Musala', 'Parkir motor dan mobil', 'Area luar ruang', 'Area merokok terpisah', 'Akses kursi roda'],
+    ramai: [0, 0, 1, 2, 2, 2, 3, 2, 2, 2, 3, 3, 4, 4, 4, 3, 3, 2],
+    bayar: ['QRIS', 'Tunai', 'Kartu debit', 'Kartu kredit'],
   },
 ];
 

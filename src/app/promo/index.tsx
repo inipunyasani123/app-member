@@ -6,7 +6,9 @@ import { Ikon } from '@/ui/Ikon';
 import { KartuTaut } from '@/ui/Tombol';
 import { Kerangka, Lencana } from '@/ui/Kecil';
 import { Bintik, Gompal } from '@/ui/Bintik';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
+import { KartuCap } from '@/ui/KartuCap';
+import { useAkun } from '@/lib/toko';
 import { useKini } from '@/lib/toko';
 import { meta } from '@/lib/meta';
 import { rupiah } from '@/lib/format';
@@ -24,6 +26,7 @@ export function generateMetadata() {
 
 export default function Promo() {
   const kini = useKini(60_000);
+  const a = useAkun();
   return (
     <Layar judul="Promo & menu musiman" induk="/">
       <View style={s.hero}>
@@ -38,6 +41,8 @@ export default function Promo() {
           <Kerangka tinggi={18} lebar={220} style={{ backgroundColor: 'rgba(255,252,244,0.2)' }} />
         )}
       </View>
+
+      <KartuCap cap={a ? a.cap : null} />
 
       <View style={s.grid}>
         {MUSIMAN.map((m, i) => (
@@ -62,7 +67,7 @@ export default function Promo() {
         {PROMO.map((p) => (
           <View key={p.id} style={s.promo}>
             <View style={s.cap}>
-              <T v="kecilTebal" warna={W.kertas} tengah style={{ fontSize: 12 }}>{p.label}</T>
+              <T v="kecilTebal" warna={W.kertas} tengah style={{ fontSize: 13 }}>{p.label}</T>
             </View>
             <View style={{ flex: 1, gap: 4 }}>
               <T v="judul3" h={3}>{p.judul}</T>
@@ -83,7 +88,7 @@ export default function Promo() {
 const s = StyleSheet.create({
   hero: { backgroundColor: W.hijau, borderRadius: 28, padding: 20, gap: 6, overflow: 'hidden', marginTop: 12, borderWidth: 4, borderColor: W.hijauTua },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  kartu: { backgroundColor: W.kertas, borderRadius: 22, borderWidth: 1, borderColor: W.garis, overflow: 'hidden' },
-  promo: { flexDirection: 'row', gap: 12, backgroundColor: W.kertas, borderRadius: 20, borderWidth: 1, borderColor: W.garis, padding: 14 },
+  kartu: { backgroundColor: W.kertas, borderRadius: 22, ...BIBIR, overflow: 'hidden' },
+  promo: { flexDirection: 'row', gap: 12, backgroundColor: W.kertas, borderRadius: 20, ...BIBIR, padding: 14 },
   cap: { width: 64, height: 64, borderRadius: 32, backgroundColor: W.merah, alignItems: 'center', justifyContent: 'center', padding: 6, transform: [{ rotate: '-8deg' }], borderWidth: 2, borderColor: W.merahPucat, borderStyle: 'dashed' },
 });

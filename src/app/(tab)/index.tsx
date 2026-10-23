@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Layar, JudulBagian } from '@/ui/Layar';
 import { T } from '@/ui/Teks';
@@ -8,12 +9,14 @@ import { Foto } from '@/ui/Foto';
 import { Ikon } from '@/ui/Ikon';
 import { KartuTaut } from '@/ui/Tombol';
 import { Kerangka, StatusBuka, Lencana } from '@/ui/Kecil';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
+import { KartuCap } from '@/ui/KartuCap';
+import { Gabung } from '@/ui/Gabung';
 import { useData } from '@/lib/pakai';
 import { voucherAktif } from '@/lib/hitung';
 import { meta } from '@/lib/meta';
 import { angka, jarakKm, rupiah } from '@/lib/format';
-import { sapaan, tglPanjang, tglPendek, relatifHari } from '@/lib/waktu';
+import { sapaan, tglPanjang, tglPendek, relatifHari, jamMenit, HARI } from '@/lib/waktu';
 import { MUSIMAN } from '@/data/menu';
 import { HADIAH } from '@/data/hadiah';
 import { OUTLET, LOKASI_CONTOH, jarak, statusBuka, outletBySlug } from '@/data/outlet';
@@ -36,6 +39,13 @@ export default function Beranda() {
   const fav = d ? outletBySlug(d.a.outletFav)! : null;
   const bisa = d ? HADIAH.filter((h) => h.biaya <= d.r.saldo && (!h.minLevel || urutanLevel(d.r.level.id) >= urutanLevel(h.minLevel))).sort((x, y) => y.biaya - x.biaya).slice(0, 3) : [];
   const [besar, ...kecil] = MUSIMAN.slice(0, 3);
+  const aktifPesanan = d ? d.a.pesanan.find((p) => p.status === 'aktif') : null;
+  const mingguIni = d ? d.r.riwayat.filter((e) => e.jumlah > 0 && e.waktu > d.kini - 7 * HARI).reduce((x, e) => x + e.jumlah, 0) : 0;
+  const [gabung, setGabung] = useState(false);
+  useEffect(() => {
+    if (d && !d.a.gabung) setGabung(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [d?.a.gabung]);
 
   return (
     <Layar tab>
@@ -67,6 +77,7 @@ export default function Beranda() {
                 <Meter nilai={d.r.terkumpul} maks={d.r.berikut?.min ?? d.r.terkumpul} label={`Kemajuan ke level ${d.r.berikut?.nama ?? 'tertinggi'}`} />
                 <T v="kecil" warna={W.tinta}>
                   {d.r.berikut ? `${angka(d.r.kurang)} bintik lagi dalam 180 hari untuk naik ke ${d.r.berikut.nama}` : 'Kamu sudah di level tertinggi'}
+                  {mingguIni ? ` · +${angka(mingguIni)} minggu ini` : ''}
                 </T>
               </>
             ) : (
@@ -95,6 +106,15 @@ export default function Beranda() {
       {/* Slot tetap supaya isi di bawahnya tidak bergeser saat data perangkat termuat. */}
       {!d ? (
         <Kerangka tinggi={66} />
+      ) : aktifPesanan ? (
+        <KartuTaut href={{ pathname: '/pesanan', params: { id: aktifPesanan.id } }} style={StyleSheet.flatten([s.hangus, s.aman])}>
+          <Ikon n="pesan" warna={W.hijau} tebal={2.2} />
+          <T v="kecil" warna={W.tinta} style={{ flex: 1 }}>
+            <T v="kecilTebal" warna={W.hijauTua}>Pesanan {aktifPesanan.nomor} siap {jamMenit(aktifPesanan.ambil)} WIB. </T>
+            Ambil di {outletBySlug(aktifPesanan.outlet)?.nama}.
+          </T>
+          <Ikon n="kanan" ukuran={18} warna={W.hijau} />
+        </KartuTaut>
       ) : d.r.akanHangus ? (
         <KartuTaut href="/poin" style={s.hangus}>
           <Ikon n="peringatan" warna={W.merah} tebal={2} />
@@ -111,6 +131,10 @@ export default function Beranda() {
           <Ikon n="kanan" ukuran={18} warna={W.hijau} />
         </KartuTaut>
       )}
+
+      <KartuTaut href="/promo" style={s.capTaut}>
+        <KartuCap cap={d ? d.a.cap : null} />
+      </KartuTaut>
 
       <JudulBagian judul="Menu musim hujan" href="/promo" tautan="Semua promo" label="Lihat semua promo dan menu musiman" />
       <View style={s.bento}>
@@ -163,7 +187,7 @@ export default function Beranda() {
             <KartuTaut key={h.id} href={`/hadiah/${h.id}`} style={s.hadiah}>
               <View style={s.biaya}>
                 <T v="judul3" warna={W.hijauTua}>{angka(h.biaya)}</T>
-                <T v="kecil" warna={W.hijauTua} style={{ fontSize: 11, lineHeight: 13 }}>bintik</T>
+                <T v="kecil" warna={W.hijauTua} style={{ fontSize: 12, lineHeight: 14 }}>bintik</T>
               </View>
               <T v="isiTebal" style={{ flex: 1 }}>{h.nama}</T>
               <Ikon n="kanan" ukuran={18} warna={W.abu} />
@@ -190,6 +214,7 @@ export default function Beranda() {
       ) : (
         <Kerangka tinggi={180} />
       )}
+      {d ? <Gabung a={d.a} level={d.r.level} terbuka={gabung} onTutup={() => setGabung(false)} /> : null}
     </Layar>
   );
 }
@@ -203,16 +228,17 @@ const s = StyleSheet.create({
   ubinHijau: { backgroundColor: W.hijau },
   ubinMentega: { backgroundColor: W.mentegaPucat, borderWidth: 2, borderColor: W.mentega },
   hangus: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.merahPucat, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, minHeight: 66, borderWidth: 1, borderColor: '#EBC3B6' },
-  aman: { backgroundColor: W.hijauPucat, borderColor: '#C6DACB' },
+  aman: { backgroundColor: W.hijauPucat, borderColor: '#B9CFBF' },
+  capTaut: { borderRadius: 22 },
   bento: { flexDirection: 'row', gap: 10, height: 300 },
   bentoBesar: { flex: 1.1, borderRadius: 24, overflow: 'hidden', backgroundColor: W.garis, justifyContent: 'flex-end' },
   bentoTeks: { padding: 14, gap: 4, backgroundColor: 'rgba(15,53,36,0.82)' },
-  bentoKecil: { flex: 1, borderRadius: 20, overflow: 'hidden', backgroundColor: W.kertas, borderWidth: 1, borderColor: W.garis },
+  bentoKecil: { flex: 1, borderRadius: 20, overflow: 'hidden', backgroundColor: W.kertas, ...BIBIR },
   bentoFoto: { height: 74, backgroundColor: W.garis },
-  outlet: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: W.kertas, borderRadius: 22, borderWidth: 1, borderColor: W.garis, padding: 10 },
+  outlet: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: W.kertas, borderRadius: 22, ...BIBIR, padding: 10 },
   outletFoto: { width: 92, height: 92, borderRadius: 16, overflow: 'hidden', backgroundColor: W.garis },
-  hadiah: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.kertas, borderRadius: 18, borderWidth: 1, borderColor: W.garis, padding: 10, minHeight: 60 },
+  hadiah: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.kertas, borderRadius: 18, ...BIBIR, padding: 10, minHeight: 60 },
   biaya: { width: 62, height: 46, borderRadius: 14, backgroundColor: W.hijauPucat, alignItems: 'center', justifyContent: 'center' },
-  daftar: { backgroundColor: W.kertas, borderRadius: 20, borderWidth: 1, borderColor: W.garis, paddingHorizontal: 14 },
+  daftar: { backgroundColor: W.kertas, borderRadius: 20, ...BIBIR, paddingHorizontal: 14 },
   barisBintik: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
 });

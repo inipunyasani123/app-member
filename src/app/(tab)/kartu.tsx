@@ -11,8 +11,9 @@ import { Lembar } from '@/ui/Lembar';
 import { Bintik } from '@/ui/Bintik';
 import { W } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
-import { simulasiPindai } from '@/lib/toko';
-import type { Trx } from '@/lib/jenis';
+import { simulasiPindai, type HasilPindai } from '@/lib/toko';
+import { MeterBertambah } from '@/ui/Gerak';
+import { CAP_PENUH } from '@/data/hadiah';
 import { meta } from '@/lib/meta';
 import { angka, fnv, rupiah } from '@/lib/format';
 import { jamMenit } from '@/lib/waktu';
@@ -30,7 +31,9 @@ const PERIODE = 60_000;
 
 export default function Kartu() {
   const d = useData(1000);
-  const [struk, setStruk] = useState<Trx | null>(null);
+  const [hasil, setHasil] = useState<HasilPindai | null>(null);
+  const struk = hasil?.trx ?? null;
+  const setStruk = (x: null) => setHasil(x);
   const slot = d ? Math.floor(d.kini / PERIODE) : 0;
   const sisa = d ? Math.ceil((PERIODE - (d.kini % PERIODE)) / 1000) : 60;
   const nomor = d?.a.nomor.replace(/\s/g, '') ?? '';
@@ -64,6 +67,7 @@ export default function Kartu() {
         <T v="judul3" h={2}>Cara pakai</T>
         {[
           ['pindai', 'Tunjukkan kode sebelum membayar. Kasir memindainya, bintik masuk ke saldomu.'],
+          ['bintang', 'Naikkan kecerahan layar supaya kode mudah terbaca kamera kasir.'],
           ['ulang', 'Kode berganti tiap menit supaya tangkapan layar lama tidak bisa dipakai orang lain.'],
           ['telepon', 'Kamera kasir bermasalah? Sebutkan nomor member di bawah kartu.'],
         ].map(([ikon, teks]) => (
@@ -83,19 +87,38 @@ export default function Kartu() {
           teks="Simulasikan pindai kasir"
           ikon="pindai"
           disabled={!d}
-          onPress={() => setStruk(simulasiPindai())}
+          onPress={() => setHasil(simulasiPindai())}
           style={{ marginTop: 4 }}
         />
       </Kotak>
 
       <Lembar terbuka={!!struk} onTutup={() => setStruk(null)} judul="Bintik masuk" bawah={<Tombol teks="Selesai" penuh onPress={() => setStruk(null)} />}>
-        {struk ? (
+        {struk && hasil && d ? (
           <View style={{ gap: 12 }}>
             <View style={s.dapat}>
               <Bintik benih={struk.bintik} jumlah={60} warna={W.mentega} kuat={0.9} />
               <T v="raksasa" warna={W.kertas}>+{angka(struk.bintik)}</T>
               <T v="isiTebal" warna={W.hijauPucat}>bintik dari kunjungan ini</T>
+              <View style={{ alignSelf: 'stretch', gap: 6, marginTop: 6 }}>
+                <MeterBertambah
+                  dari={hasil.sebelum}
+                  ke={hasil.sesudah}
+                  maks={d.r.berikut?.min ?? hasil.sesudah}
+                  terang
+                  label={`${angka(hasil.sesudah)} dari ${angka(d.r.berikut?.min ?? hasil.sesudah)} bintik menuju ${d.r.berikut?.nama ?? 'level tertinggi'}`}
+                />
+                <T v="kecil" warna={W.hijauPucat}>
+                  {d.r.berikut ? `${angka(Math.max(0, d.r.berikut.min - hasil.sesudah))} bintik lagi ke ${d.r.berikut.nama} · saldo ${angka(hasil.saldo)}` : `Saldo ${angka(hasil.saldo)} bintik`}
+                </T>
+              </View>
             </View>
+            <T v="isi" aria-live="polite">
+              {hasil.capPenuh
+                ? 'Kartu cap musim hujan penuh! Voucher minuman musim hujan gratis sudah ada di Voucher saya.'
+                : struk.item.some((i) => i.musiman)
+                  ? `Dapat 1 cap musim hujan (${hasil.cap}/${CAP_PENUH}).`
+                  : `+${angka(struk.bintik)} bintik masuk ke saldomu.`}
+            </T>
             <T v="kecil">
               {outletBySlug(struk.outlet)?.nama} · {jamMenit(struk.waktu)} WIB
             </T>
@@ -105,12 +128,12 @@ export default function Kartu() {
                   <T v="isiTebal">{i.qty}× {i.nama}</T>
                   {i.opsi.length ? <T v="kecil">{i.opsi.join(' · ')}</T> : null}
                 </View>
-                <T v="isi">{rupiah(i.harga * i.qty)}</T>
+                <T v="nominal">{rupiah(i.harga * i.qty)}</T>
               </View>
             ))}
             <View style={[s.baris, { borderTopWidth: 1, borderTopColor: W.garis, paddingTop: 10 }]}>
               <T v="isiTebal" style={{ flex: 1 }}>Total</T>
-              <T v="isiTebal">{rupiah(struk.total)}</T>
+              <T v="nominal">{rupiah(struk.total)}</T>
             </View>
           </View>
         ) : null}

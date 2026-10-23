@@ -7,7 +7,7 @@ import { acak, kodeVoucher } from './format';
 import { buatItem, hitungBintik, subtotalDari } from './keranjang';
 import { akhirHari, awalHari, bagian, HARI, MENIT } from './waktu';
 
-export const VERSI = 3;
+export const VERSI = 4;
 
 const BIASA = ['kopi-susu-blirik', 'kopi-susu-blirik', 'americano', 'cappuccino', 'kopi-tubruk', 'teh-tarik-rempah', 'susu-gula-aren'];
 const MAKAN = ['roti-bakar-cokelat', 'kue-lumpur', 'nasi-pecel'];
@@ -35,7 +35,7 @@ export function benih(kini: number): Akun {
   let hari = 404;
   let n = 0;
   let traktir = false;
-  while (hari >= 2) {
+  while (hari >= 16) {
     const awal = hariIni - hari * HARI;
     const hariMinggu = bagian(awal + 12 * 60 * MENIT).hari;
     let outlet = rnd() < 0.66 ? 'tulungagung' : rnd() < 0.55 ? 'kediri' : 'blitar';
@@ -94,7 +94,33 @@ export function benih(kini: number): Akun {
       voucher.push(menunggu);
     }
     n += 1;
-    hari -= (hari > 200 ? 22 : 10) + Math.floor(rnd() * 6);
+    hari -= (hari > 200 ? 22 : 18) + Math.floor(rnd() * 8);
+  }
+
+  // Dua pekan terakhir ditulis tangan supaya riwayat terasa nyata: tubruk pagi, es kopi kelapa sore,
+  // akhir pekan di Blitar, pesan ambil siang. Empat transaksi berisi menu musim hujan = 4 cap.
+  const akhirPekan = [8, 9, 7, 10].find((h) => [0, 6].includes(bagian(hariIni - h * HARI + 12 * 60 * MENIT).hari)) ?? 8;
+  type Baru = { hari: number; jam: [number, number]; outlet: string; jenis?: 'kasir' | 'ambil'; item: [string, ('es' | 'panas')?][]; tumbler?: boolean };
+  const TERBARU: Baru[] = [
+    { hari: 13, jam: [7, 40], outlet: 'tulungagung', item: [['kopi-tubruk', 'panas'], ['kue-lumpur']] },
+    { hari: 11, jam: [16, 20], outlet: 'tulungagung', item: [['es-kopi-kelapa'], ['kue-lumpur']], tumbler: true },
+    { hari: akhirPekan, jam: [10, 15], outlet: 'blitar', item: [['cokelat-kayu-manis', 'panas'], ['pisang-goreng-madu']] },
+    { hari: 6, jam: [7, 35], outlet: 'tulungagung', item: [['kopi-tubruk', 'panas']] },
+    { hari: 4, jam: [12, 50], outlet: 'kediri', jenis: 'ambil', item: [['wedang-jahe-aren'], ['nasi-pecel']] },
+    { hari: 2, jam: [16, 5], outlet: 'tulungagung', item: [['es-kopi-kelapa'], ['roti-bakar-cokelat']] },
+    { hari: 1, jam: [7, 30], outlet: 'tulungagung', item: [['kopi-susu-blirik', 'es']], tumbler: true },
+  ];
+  for (const b of TERBARU.sort((x, y) => y.hari - x.hari)) {
+    const waktu = hariIni - b.hari * HARI + (b.jam[0] * 60 + b.jam[1]) * MENIT;
+    const kali = levelDari(terkumpulPada(waktu)).kali;
+    const item = b.item.map(([id, suhu]) => buatItem(menuById(id)!, { ukuran: 'sedang', suhu: suhu ?? 'es', gula: 'kurang', susu: 'sapi', shot: false }, 1));
+    const total = subtotalDari(item);
+    const bt = hitungBintik(item, total, kali);
+    const id = `t${n}`;
+    trx.push({ id, waktu, outlet: b.outlet, jenis: b.jenis ?? 'kasir', item, subtotal: total, potongan: 0, total, bintik: bt.jumlah });
+    mutasi.push({ id: `m${n}`, jenis: 'dapat', jumlah: bt.jumlah, ket: outletBySlug(b.outlet)!.nama, waktu: waktu + MENIT, trxId: id });
+    if (b.tumbler) mutasi.push({ id: `mt${n}`, jenis: 'bonus', jumlah: 5, ket: 'Bawa tumbler sendiri', waktu: waktu + 2 * MENIT, trxId: id });
+    n += 1;
   }
 
   // Voucher yang belum dipakai: satu kedaluwarsa, satu hampir habis, satu baru.
@@ -124,6 +150,8 @@ export function benih(kini: number): Akun {
     voucher,
     trx: trx.sort((x, y) => y.waktu - x.waktu),
     pesanan: [],
+    cap: 4,
+    gabung: false,
   };
 }
 

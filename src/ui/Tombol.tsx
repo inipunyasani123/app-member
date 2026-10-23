@@ -39,7 +39,7 @@ function isi(teks: string, ragam: Ragam, ikon?: NamaIkon, kecil?: boolean) {
 const gayaTombol = (ragam: Ragam, kecil?: boolean, penuh?: boolean, pressed?: boolean, disabled?: boolean): ViewStyle => {
   const w = WARNA[ragam];
   return {
-    minHeight: kecil ? 40 : 50,
+    minHeight: kecil ? 44 : 50,
     paddingHorizontal: kecil ? 14 : 20,
     borderRadius: 999,
     backgroundColor: w.bg,
@@ -103,7 +103,7 @@ export function Chip({ teks, aktif, onPress, peran = 'radio', kecil, label }: { 
       aria-label={label}
       onPress={onPress}
       style={({ pressed }) => ({
-        minHeight: kecil ? 36 : 42,
+        minHeight: 44,
         paddingHorizontal: kecil ? 12 : 16,
         borderRadius: 999,
         borderWidth: 1.5,

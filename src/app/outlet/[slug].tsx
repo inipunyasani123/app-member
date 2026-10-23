@@ -11,8 +11,8 @@ import { W } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import { setelProfil } from '@/lib/toko';
 import { meta } from '@/lib/meta';
-import { bagian, NAMA_HARI } from '@/lib/waktu';
-import { OUTLET, outletBySlug, statusBuka, teksJam } from '@/data/outlet';
+import { bagian, NAMA_HARI, jamDariMenit } from '@/lib/waktu';
+import { OUTLET, outletBySlug, statusBuka, teksJam, type Outlet } from '@/data/outlet';
 import NotFound from '../+not-found';
 
 export function generateStaticParams() {
@@ -30,6 +30,34 @@ export function generateMetadata(_r: unknown, params: Record<string, string>) {
 }
 
 const URUT_HARI = [1, 2, 3, 4, 5, 6, 0];
+
+/** Perkiraan keramaian per jam (rekaan): batang 06.00–23.00, jam sekarang ditandai mentega. */
+function Keramaian({ o, jam }: { o: Outlet; jam: number }) {
+  const r = o.ramai;
+  const puncak = Math.max(...r);
+  let a = r.indexOf(puncak), b = a;
+  while (b + 1 < r.length && r[b + 1] === puncak) b++;
+  const sepi = r.map((v, i) => [v, i] as const).filter(([v]) => v > 0).sort((x, y) => x[0] - y[0])[0]?.[1] ?? 0;
+  const teks = `Paling ramai ${jamDariMenit((6 + a) * 60)}–${jamDariMenit((7 + b) * 60)}, paling lengang sekitar ${jamDariMenit((6 + sepi) * 60)}`;
+  return (
+    <View style={{ gap: 6 }}>
+      <T v="isiTebal">{teks}</T>
+      <View role="img" aria-label={`${teks}. Perkiraan rekaan.`} style={s.grafik}>
+        {r.map((v, i) => (
+          <View key={i} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: 64 }}>
+            <View style={{ width: '70%', height: v ? 8 + v * 13 : 3, borderTopLeftRadius: 4, borderTopRightRadius: 4, backgroundColor: 6 + i === jam ? W.mentega : v >= 3 ? W.hijau : W.tepi, opacity: v ? 1 : 0.35, borderWidth: 6 + i === jam ? 1.5 : 0, borderColor: W.hijauTua }} />
+          </View>
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        {['06', '10', '14', '18', '22'].map((x) => (
+          <T key={x} v="kecil">{x}.00</T>
+        ))}
+      </View>
+      <T v="kecil">{jam >= 6 ? 'Batang kuning = jam sekarang (WIB). ' : ''}Perkiraan rekaan untuk demo.</T>
+    </View>
+  );
+}
 
 export default function DetailOutlet() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -78,6 +106,21 @@ export default function DetailOutlet() {
       </Kotak>
 
       <Kotak>
+        <T v="judul3" h={2}>Biasanya ramai</T>
+        <Keramaian o={o} jam={d ? bagian(d.kini).jam : -1} />
+      </Kotak>
+
+      <Kotak>
+        <T v="judul3" h={2}>Bayar dengan</T>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {o.bayar.map((b) => (
+            <Lencana key={b} teks={b} ragam="mentega" />
+          ))}
+        </View>
+        <T v="kecil">Pesan ambil juga dibayar di kasir saat mengambil.</T>
+      </Kotak>
+
+      <Kotak>
         <T v="judul3" h={2}>Fasilitas</T>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {o.fasilitas.map((f) => (
@@ -93,4 +136,5 @@ const s = StyleSheet.create({
   foto: { height: 240, borderRadius: 26, overflow: 'hidden', backgroundColor: W.garis, marginTop: 12 },
   jam: { flexDirection: 'row', paddingVertical: 6, paddingHorizontal: 8, borderRadius: 10 },
   jamIni: { backgroundColor: W.hijauPucat },
+  grafik: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, borderBottomWidth: 2, borderBottomColor: W.hijau, paddingBottom: 2 },
 });

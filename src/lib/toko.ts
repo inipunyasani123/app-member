@@ -3,13 +3,14 @@ import type { Akun, ItemPesan, Pesanan, Pref, Notif, Trx } from './jenis';
 import { baca, tulis } from './simpan';
 import { benih, VERSI } from './benih';
 import { ringkas, statusVoucher } from './hitung';
-import { hadiahById } from '@/data/hadiah';
+import { hadiahById, CAP_PENUH } from '@/data/hadiah';
 import { menuById, MENU } from '@/data/menu';
 import { outletBySlug } from '@/data/outlet';
 import { urutanLevel } from '@/data/level';
 import { acak, idBaru, kodeVoucher } from './format';
 import { buatItem, hitungBintik, subtotalDari } from './keranjang';
 import { akhirHari, MENIT } from './waktu';
+import { getarBerhasil } from './getar';
 
 const KUNCI = 'kopi-blirik:akun';
 let akun: Akun | null = null;
@@ -64,6 +65,34 @@ function ubah(f: (a: Akun) => Akun) {
   kabari();
 }
 
+/** Cap musim hujan: satu cap per transaksi berisi menu musiman; cap ke-6 menerbitkan voucher dan kartu kembali kosong. */
+function tambahCap(a: Akun, item: ItemPesan[], kini: number): { a: Akun; penuh: boolean } {
+  if (!item.some((i) => i.musiman)) return { a, penuh: false };
+  const cap = (a.cap ?? 0) + 1;
+  if (cap < CAP_PENUH) return { a: { ...a, cap }, penuh: false };
+  const h = hadiahById('cap-musim')!;
+  return {
+    a: { ...a, cap: 0, voucher: [...a.voucher, { kode: kodeVoucher(), hadiahId: h.id, nama: h.nama, dibuat: kini, berlaku: akhirHari(kini, h.berlakuHari), status: 'aktif' }] },
+    penuh: true,
+  };
+}
+
+/** Perkenalan selesai: data dari pengguna dipakai sebagai profil & pilihan awal minuman, plus bintik sambutan. */
+export const BONUS_GABUNG = 20;
+export function selesaiGabung(p: { nama: string; outletFav: string; pref: Pref }) {
+  ubah((a) => ({
+    ...a,
+    nama: p.nama.trim().slice(0, 40) || a.nama,
+    outletFav: p.outletFav,
+    pref: p.pref,
+    gabung: true,
+    mutasi: a.mutasi.some((m) => m.id === 'm-gabung') ? a.mutasi : [...a.mutasi, { id: 'm-gabung', jenis: 'bonus', jumlah: BONUS_GABUNG, ket: 'Sambutan Kawan Blirik', waktu: Date.now() }],
+  }));
+  getarBerhasil();
+}
+export const lewatiGabung = () => ubah((a) => ({ ...a, gabung: true }));
+export const ulangiGabung = () => ubah((a) => ({ ...a, gabung: false }));
+
 export function setelProfil(p: Partial<Pick<Akun, 'nama' | 'outletFav' | 'lokasi'>>) {
   ubah((a) => ({ ...a, ...p }));
 }
@@ -94,6 +123,7 @@ export function tukarHadiah(hadiahId: string): HasilTukar {
     mutasi: [...a.mutasi, { id: idBaru('m'), jenis: 'tukar', jumlah: -h.biaya, ket: `Tukar: ${h.nama}`, waktu: kini, kode }],
     voucher: [...a.voucher, { kode, hadiahId: h.id, nama: h.nama, dibuat: kini, berlaku: akhirHari(kini, h.berlakuHari), status: 'aktif' }],
   }));
+  getarBerhasil();
   return { ok: true, kode };
 }
 
@@ -101,15 +131,17 @@ export function pakaiVoucher(kode: string, catatan = 'Dipindai kasir (simulasi)'
   ubah((a) => ({ ...a, voucher: a.voucher.map((v) => (v.kode === kode ? { ...v, status: 'terpakai', dipakai: Date.now(), catatan } : v)) }));
 }
 
+export type HasilPindai = { trx: Trx; sebelum: number; sesudah: number; saldo: number; capPenuh: boolean; cap: number };
 /** Simulasi kasir memindai kartu: membuat transaksi acak di outlet favorit dan membagikan bintik. */
-export function simulasiPindai(): Trx | null {
+export function simulasiPindai(): HasilPindai | null {
   if (!akun) return null;
   const kini = Date.now();
   const rnd = acak(kini % 100000);
   const r = ringkas(akun, kini);
   const minum = MENU.filter((m) => m.suhu);
+  const musim = minum.filter((m) => m.kategori === 'musiman');
   const makan = MENU.filter((m) => !m.suhu);
-  const pilihan = [minum[Math.floor(rnd() * minum.length)]];
+  const pilihan = [rnd() < 0.5 ? musim[Math.floor(rnd() * musim.length)] : minum[Math.floor(rnd() * minum.length)]];
   if (rnd() < 0.6) pilihan.push(makan[Math.floor(rnd() * makan.length)]);
   const item = pilihan.map((m) =>
     buatItem(m, { ukuran: akun!.pref.ukuran, suhu: 'es', gula: akun!.pref.gula, susu: akun!.pref.susu, es: akun!.pref.es, shot: false }, 1),
@@ -117,12 +149,19 @@ export function simulasiPindai(): Trx | null {
   const subtotal = subtotalDari(item);
   const b = hitungBintik(item, subtotal, r.level.kali);
   const trx: Trx = { id: idBaru('t'), waktu: kini, outlet: akun.outletFav, jenis: 'kasir', item, subtotal, potongan: 0, total: subtotal, bintik: b.jumlah };
-  ubah((a) => ({
-    ...a,
-    trx: [trx, ...a.trx],
-    mutasi: [...a.mutasi, { id: idBaru('m'), jenis: 'dapat', jumlah: b.jumlah, ket: outletBySlug(a.outletFav)!.nama, waktu: kini, trxId: trx.id }],
-  }));
-  return trx;
+  let capPenuh = false;
+  ubah((a) => {
+    const c = tambahCap(a, item, kini);
+    capPenuh = c.penuh;
+    return {
+      ...c.a,
+      trx: [trx, ...a.trx],
+      mutasi: [...a.mutasi, { id: idBaru('m'), jenis: 'dapat', jumlah: b.jumlah, ket: outletBySlug(a.outletFav)!.nama, waktu: kini, trxId: trx.id }],
+    };
+  });
+  getarBerhasil();
+  const r2 = ringkas(akun!, kini + 1);
+  return { trx, sebelum: r.terkumpul, sesudah: r2.terkumpul, saldo: r2.saldo, capPenuh, cap: akun!.cap };
 }
 
 export function buatPesanan(p: Omit<Pesanan, 'id' | 'nomor' | 'dibuat' | 'status'>): Pesanan {
@@ -143,8 +182,9 @@ export function ambilPesanan(id: string) {
     if (!p || p.status !== 'aktif') return a;
     const kini = Date.now();
     const trx: Trx = { id: idBaru('t'), waktu: kini, outlet: p.outlet, jenis: 'ambil', item: p.item, subtotal: p.subtotal, potongan: p.potongan, total: p.total, bintik: p.bintik, voucher: p.voucher, pesananId: p.id };
+    const c = tambahCap(a, p.item, kini);
     return {
-      ...a,
+      ...c.a,
       pesanan: a.pesanan.map((x) => (x.id === id ? { ...x, status: 'diambil', selesai: kini } : x)),
       trx: [trx, ...a.trx],
       mutasi: [...a.mutasi, { id: idBaru('m'), jenis: 'dapat', jumlah: p.bintik, ket: `Pesan ambil ${p.nomor}`, waktu: kini, trxId: trx.id }],

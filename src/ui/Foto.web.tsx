@@ -8,7 +8,7 @@ type Props = { k: string; bentuk?: 'k' | 'l'; alt: string; style?: ViewStyle; pr
 export function Foto({ k, bentuk = 'k', alt, style, prioritas, lebarTampil = 360 }: Props) {
   const ukuran = (daftar as Record<string, Record<string, number[]>>)[k]?.[bentuk] ?? [];
   const [kecil, besar] = ukuran;
-  const css = { display: 'block', objectFit: 'cover', width: '100%', height: '100%', backgroundColor: '#E2D8C6', ...(StyleSheet.flatten(style) as CSSProperties) } as CSSProperties;
+  const css = { display: 'block', objectFit: 'cover', width: '100%', height: '100%', backgroundColor: '#C7D7C6', ...(StyleSheet.flatten(style) as CSSProperties) } as CSSProperties;
   return (
     <img
       src={`/foto/${k}-${bentuk}${kecil}.webp`}

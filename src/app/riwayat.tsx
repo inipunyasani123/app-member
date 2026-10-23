@@ -6,7 +6,7 @@ import { Ikon } from '@/ui/Ikon';
 import { Chip } from '@/ui/Tombol';
 import { Kerangka, Lencana } from '@/ui/Kecil';
 import { Lembar } from '@/ui/Lembar';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import type { Trx } from '@/lib/jenis';
 import { meta } from '@/lib/meta';
@@ -33,14 +33,15 @@ export default function Riwayat() {
   const [f, setF] = useState<(typeof FILTER)[number]['id']>('semua');
   const [buka, setBuka] = useState<Trx | null>(null);
   const daftar = d ? d.a.trx.filter((t) => f === 'semua' || t.jenis === f).sort((a, b) => b.waktu - a.waktu) : [];
-  const grup: { bulan: string; isi: Trx[]; total: number }[] = [];
+  const grup: { bulan: string; isi: Trx[]; total: number; bintik: number }[] = [];
   for (const t of daftar) {
     const b = bulanTahun(t.waktu);
     const g = grup[grup.length - 1];
     if (g && g.bulan === b) {
       g.isi.push(t);
       g.total += t.total;
-    } else grup.push({ bulan: b, isi: [t], total: t.total });
+      g.bintik += t.bintik;
+    } else grup.push({ bulan: b, isi: [t], total: t.total, bintik: t.bintik });
   }
 
   return (
@@ -53,9 +54,11 @@ export default function Riwayat() {
       </View>
       {!d ? <Kerangka tinggi={360} /> : grup.map((g) => (
         <View key={g.bulan} style={{ gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-            <T v="label" h={2} style={{ flex: 1 }}>{g.bulan}</T>
-            <T v="kecil">{rupiah(g.total)}</T>
+          <View style={s.kepalaBulan}>
+            <T v="judul3" h={2} warna={W.hijauTua}>{g.bulan}</T>
+            <T v="kecil" warna={W.tinta}>
+              {g.isi.length} kunjungan · {rupiah(g.total)} · <T v="kecilTebal" warna={W.hijau}>+{angka(g.bintik)} bintik</T>
+            </T>
           </View>
           <View style={{ gap: 8 }}>
             {g.isi.map((t) => (
@@ -69,7 +72,7 @@ export default function Riwayat() {
                   <T v="kecil">{tglPendek(t.waktu)} · {jamMenit(t.waktu)} WIB{t.jenis === 'ambil' ? ' · pesan ambil' : ''}</T>
                 </View>
                 <View style={{ alignItems: 'flex-end', gap: 2 }}>
-                  <T v="isiTebal">{rupiah(t.total)}</T>
+                  <T v="nominal">{rupiah(t.total)}</T>
                   <T v="kecilTebal" warna={W.hijau}>+{angka(t.bintik)}</T>
                 </View>
               </Pressable>
@@ -121,7 +124,8 @@ function Baris({ k, n, tebal }: { k: string; n: string; tebal?: boolean }) {
 
 const s = StyleSheet.create({
   filter: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  trx: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.kertas, borderRadius: 18, borderWidth: 1, borderColor: W.garis, padding: 12 },
+  kepalaBulan: { gap: 2, paddingBottom: 6, borderBottomWidth: 3, borderBottomColor: W.hijau, borderStyle: 'solid' },
+  trx: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: W.kertas, borderRadius: 18, ...BIBIR, padding: 12 },
   ikon: { width: 40, height: 40, borderRadius: 20, backgroundColor: W.hijauPucat, alignItems: 'center', justifyContent: 'center' },
   struk: { backgroundColor: '#FFFEFA', borderWidth: 1, borderColor: W.garis, borderRadius: 6, padding: 16, gap: 6 },
   putus: { borderTopWidth: 1.5, borderStyle: 'dashed', borderColor: W.garisKuat, marginVertical: 6 },

@@ -29,13 +29,13 @@ export const MENU: Menu[] = [
   },
   {
     id: 'wedang-jahe-aren', nama: 'Wedang Jahe Gula Aren', kategori: 'musiman', harga: 18000, foto: 'wedang-jahe-aren',
-    desk: 'Jahe emprit dibakar lalu digeprek, direbus bersama sereh dan gula aren. Hangat sampai ke dada.', suhu: 'panas', gula: true,
+    desk: 'Jahe emprit dibakar lalu digeprek, direbus bersama sereh dan sesendok gula aren. Hangat sampai ke dada.', suhu: 'panas', gula: true,
     rasa: ['pedas hangat', 'sereh', 'manis legit'],
   },
   {
     id: 'cokelat-kayu-manis', nama: 'Cokelat Kayu Manis', kategori: 'musiman', harga: 25000, foto: 'cokelat-kayu-manis',
-    desk: 'Cokelat hitam 60%, susu, sejumput kayu manis, dan krim kocok di atasnya.', suhu: 'keduanya', susu: true, gula: true,
-    rasa: ['cokelat pekat', 'kayu manis', 'creamy'],
+    desk: 'Cokelat hitam 60% dan susu, diseduh bersama batang kayu manis, ditabur cokelat serut.', suhu: 'keduanya', susu: true, gula: true,
+    rasa: ['cokelat pekat', 'kayu manis', 'cokelat serut'],
   },
   {
     id: 'pisang-goreng-madu', nama: 'Pisang Goreng Madu', kategori: 'musiman', harga: 17000, foto: 'pisang-goreng-madu',
@@ -46,7 +46,7 @@ export const MENU: Menu[] = [
     id: 'kopi-susu-blirik', nama: 'Kopi Susu Blirik', kategori: 'kopi', harga: 22000, foto: 'kopi-susu-blirik',
     desk: 'Andalan kami: espresso, susu segar, dan gula aren. Disajikan di gelas kristal seperti di rumah nenek.', suhu: 'keduanya', susu: true, gula: true, shot: true,
   },
-  { id: 'kopi-tubruk', nama: 'Kopi Tubruk Robusta', kategori: 'kopi', harga: 13000, desk: 'Robusta Kediri giling kasar, diseduh air mendidih, ampasnya dibiarkan turun.', suhu: 'panas', gula: true },
+  { id: 'kopi-tubruk', nama: 'Kopi Tubruk Robusta', kategori: 'kopi', harga: 9000, desk: 'Robusta Kediri giling kasar, diseduh air mendidih, ampasnya dibiarkan turun.', suhu: 'panas', gula: true },
   { id: 'americano', nama: 'Americano', kategori: 'kopi', harga: 18000, desk: 'Dua shot espresso campuran arabika Kawi dan robusta, ditambah air.', suhu: 'keduanya', gula: true, shot: true },
   { id: 'cappuccino', nama: 'Cappuccino', kategori: 'kopi', harga: 25000, desk: 'Espresso dengan susu berbusa tebal. Cocok untuk pagi yang gerimis.', suhu: 'keduanya', susu: true, gula: true, shot: true },
   { id: 'teh-tarik-rempah', nama: 'Teh Tarik Rempah', kategori: 'nonkopi', harga: 19000, desk: 'Teh hitam, susu kental, kapulaga, dan cengkih, ditarik sampai berbusa.', suhu: 'keduanya', gula: true },

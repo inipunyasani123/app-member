@@ -6,7 +6,7 @@ import { Foto } from '@/ui/Foto';
 import { Ikon } from '@/ui/Ikon';
 import { Chip, KartuTaut } from '@/ui/Tombol';
 import { Kerangka, StatusBuka, Lencana } from '@/ui/Kecil';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import { setelProfil } from '@/lib/toko';
 import { meta } from '@/lib/meta';
@@ -88,6 +88,6 @@ export default function DaftarOutlet() {
 
 const s = StyleSheet.create({
   lokasi: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  kartu: { flexDirection: 'row', gap: 12, backgroundColor: W.kertas, borderRadius: 22, borderWidth: 1, borderColor: W.garis, padding: 10 },
+  kartu: { flexDirection: 'row', gap: 12, backgroundColor: W.kertas, borderRadius: 22, ...BIBIR, padding: 10 },
   foto: { width: 104, height: 104, borderRadius: 16, overflow: 'hidden', backgroundColor: W.garis },
 });

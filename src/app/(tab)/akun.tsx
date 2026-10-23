@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, StyleSheet, Switch, TextInput, Pressable } from 'react-native';
-import { Link, type Href } from 'expo-router';
+import { Link, router, type Href } from 'expo-router';
 import { Layar, Pita } from '@/ui/Layar';
 import { T } from '@/ui/Teks';
 import { Ikon, type NamaIkon } from '@/ui/Ikon';
@@ -9,9 +9,9 @@ import { Kerangka, Kotak } from '@/ui/Kecil';
 import { Lembar } from '@/ui/Lembar';
 import { Bintik } from '@/ui/Bintik';
 import { Wadah } from '@/ui/Wadah';
-import { W, ui } from '@/ui/tema';
+import { W, ui, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
-import { setelProfil, setelPref, setelNotif, aturUlang } from '@/lib/toko';
+import { setelProfil, setelPref, setelNotif, aturUlang, ulangiGabung } from '@/lib/toko';
 import { meta } from '@/lib/meta';
 import { tglSedang } from '@/lib/waktu';
 import { OUTLET, outletBySlug } from '@/data/outlet';
@@ -62,7 +62,7 @@ export default function Akun() {
         {d ? (
           <View style={s.cap}>
             <Wadah id={d.r.level.id} ukuran={52} aktif label={`Level ${d.r.level.nama}`} />
-            <T v="kecilTebal" warna={W.hijauTua} style={{ fontSize: 11, lineHeight: 13 }}>{d.r.level.nama}</T>
+            <T v="kecilTebal" warna={W.hijauTua} style={{ fontSize: 12, lineHeight: 14 }}>{d.r.level.nama}</T>
           </View>
         ) : null}
       </View>
@@ -151,7 +151,10 @@ export default function Akun() {
             <Ikon n="luar" ukuran={18} warna={W.hijauTua} />
           </Pressable>
         </Link>
-        <Tombol teks="Atur ulang data contoh" ragam="bahaya" ikon="ulang" kecil onPress={() => setReset(true)} disabled={!d} />
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          <Tombol teks="Ulangi perkenalan" ragam="garis" ikon="kartu" kecil onPress={() => { ulangiGabung(); router.navigate('/'); }} disabled={!d} />
+          <Tombol teks="Atur ulang data contoh" ragam="bahaya" ikon="ulang" kecil onPress={() => setReset(true)} disabled={!d} />
+        </View>
       </Kotak>
 
       <Lembar terbuka={reset} onTutup={() => setReset(false)} judul="Atur ulang data?" bawah={<Tombol teks="Ya, atur ulang" ragam="bahaya" penuh onPress={() => { aturUlang(); setReset(false); }} />}>
@@ -165,7 +168,7 @@ const s = StyleSheet.create({
   profil: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.hijau, borderRadius: 26, padding: 16, overflow: 'hidden', borderWidth: 4, borderColor: W.hijauTua },
   avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: W.kertas, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: W.mentega },
   cap: { alignItems: 'center', backgroundColor: W.mentegaPucat, borderRadius: 16, paddingHorizontal: 6, paddingVertical: 4, borderWidth: 1.5, borderColor: W.mentega },
-  menu: { backgroundColor: W.kertas, borderRadius: 22, borderWidth: 1, borderColor: W.garis, paddingHorizontal: 14 },
+  menu: { backgroundColor: W.kertas, borderRadius: 22, ...BIBIR, paddingHorizontal: 14 },
   barisMenu: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54 },
   chip: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   input: { ...ui(400), fontSize: 16, color: W.tinta, borderWidth: 1.5, borderColor: W.garisKuat, borderRadius: 14, paddingHorizontal: 14, minHeight: 48, backgroundColor: '#fff' },

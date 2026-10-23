@@ -6,7 +6,7 @@ import { Foto } from '@/ui/Foto';
 import { Ikon } from '@/ui/Ikon';
 import { KartuTaut, TautanTombol } from '@/ui/Tombol';
 import { Kerangka, Kotak, Lencana } from '@/ui/Kecil';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import { meta } from '@/lib/meta';
 import { angka, rupiah } from '@/lib/format';
@@ -90,6 +90,6 @@ export default function DetailMenu() {
 const s = StyleSheet.create({
   foto: { height: 300, borderRadius: 28, overflow: 'hidden', backgroundColor: W.garis, marginTop: 12, borderWidth: 4, borderColor: W.hijau },
   rasa: { backgroundColor: W.hijauPucat, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
-  lain: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.kertas, borderRadius: 18, borderWidth: 1, borderColor: W.garis, padding: 8 },
+  lain: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: W.kertas, borderRadius: 18, ...BIBIR, padding: 8 },
   lainFoto: { width: 56, height: 56, borderRadius: 12, overflow: 'hidden', backgroundColor: W.garis },
 });

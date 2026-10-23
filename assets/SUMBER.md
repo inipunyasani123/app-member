@@ -10,8 +10,8 @@ Semua foto berlisensi CC0 atau domain publik, tanpa wajah orang. Nama berkas di 
 | --- | --- | --- | --- | --- |
 | kopi-susu-blirik | Kopi Susu Blirik | https://wordpress.org/photos/photo/7916a230fa/ | manjil2008 (WordPress Photo Directory) | CC0 |
 | es-kopi-kelapa | Es Kopi Susu Kelapa | https://commons.wikimedia.org/wiki/File:Es_Kopi_Susu_Kekinian.jpg | Fhikri Latifi | CC0 |
-| wedang-jahe-aren | Wedang Jahe Gula Aren | https://commons.wikimedia.org/wiki/File:Wedang_Jahe_Hangat.jpg | Chaejhh | CC0 |
-| cokelat-kayu-manis | Cokelat Kayu Manis | https://wordpress.org/photos/photo/42861f9b35/ | pengguna 15602155 (WordPress Photo Directory) | CC0 |
+| wedang-jahe-aren | Wedang Jahe Gula Aren | https://commons.wikimedia.org/wiki/File:Ginger_tea.jpg | congerdesign | CC0 |
+| cokelat-kayu-manis | Cokelat Kayu Manis | https://commons.wikimedia.org/wiki/File:Hot-chocolate-1058197.jpg | Steve Buissinne | CC0 |
 | pisang-goreng-madu | Pisang Goreng Madu | https://commons.wikimedia.org/wiki/File:Pisang_Goreng_Hangat.jpg | AndriFB | CC0 |
 | roti-bakar-cokelat | Roti Bakar Cokelat Keju | https://commons.wikimedia.org/wiki/File:Roti_Bakar_Rumahan.jpg | Aqilla Rahmi | CC0 |
 | biji-kopi | Hadiah biji kopi | https://commons.wikimedia.org/wiki/File:Roasted_coffee_beans.jpg | MarkSweep | Domain publik |
@@ -26,6 +26,7 @@ Semua foto berlisensi CC0 atau domain publik, tanpa wajah orang. Nama berkas di 
 
 - Ikon aplikasi (cangkir enamel): `scripts/ikon.mjs`, sumber vektor di `design/ikon.svg`.
 - Lambang level Lepek, Cangkir, Teko, Ceret: `src/ui/Wadah.tsx`.
+- Ilustrasi hadiah non-produk (shot, naik ukuran, potongan, kelas seduh, cap musim hujan) dan cangkir kosong: `src/ui/IlustrasiHadiah.tsx`. Kartu cap musim hujan: `src/ui/KartuCap.tsx`.
 - Tekstur bintik blirik dan gompal enamel: `src/ui/Bintik.tsx`. Ikon garis: `src/ui/Ikon.tsx`.
 - Tidak ada gambar orang. Avatar member berupa huruf awal nama.
 

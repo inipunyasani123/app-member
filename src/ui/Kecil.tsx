@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { View, type ViewStyle } from 'react-native';
 import { T } from './Teks';
 import { Ikon, type NamaIkon } from './Ikon';
-import { W } from './tema';
+import { W, BIBIR } from './tema';
+import { IlustrasiHadiah } from './IlustrasiHadiah';
 import type { Status } from '@/data/outlet';
 
 /** Ruang kosong berukuran tetap selama data perangkat belum termuat (mencegah pergeseran tata letak). */
@@ -22,7 +23,7 @@ export function Lencana({ teks, ragam = 'hijau', ikon }: { teks: string; ragam?:
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: w.bg, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
       {ikon ? <Ikon n={ikon} ukuran={14} warna={w.fg} tebal={2.2} /> : null}
-      <T v="kecilTebal" warna={w.fg} style={{ fontSize: 12, lineHeight: 16 }}>
+      <T v="kecilTebal" warna={w.fg} style={{ fontSize: 13, lineHeight: 17 }}>
         {teks}
       </T>
     </View>
@@ -45,24 +46,24 @@ export function StatusBuka({ st }: { st: Status | null }) {
 
 export function Kotak({ children, style, gelap }: { children: ReactNode; style?: ViewStyle | ViewStyle[]; gelap?: boolean }) {
   return (
-    <View style={[{ backgroundColor: gelap ? W.hijau : W.kertas, borderRadius: 22, borderWidth: 1, borderColor: gelap ? W.hijauTua : W.garis, padding: 16, gap: 8, overflow: 'hidden' }, style as ViewStyle]}>
+    <View style={[{ backgroundColor: gelap ? W.hijau : W.kertas, borderRadius: 22, padding: 16, gap: 8, overflow: 'hidden' }, gelap ? { borderWidth: 1, borderColor: W.hijauTua } : BIBIR, style as ViewStyle]}>
       {children}
     </View>
   );
 }
 
-export function Kosong({ judul, isi, ikon = 'cangkir' }: { judul: string; isi: string; ikon?: NamaIkon }) {
+/** Keadaan kosong: cangkir enamel terguling (ilustrasi sendiri), satu kalimat, dan satu aksi di tengah. */
+export function Kosong({ judul, isi, aksi }: { judul: string; isi: string; ikon?: NamaIkon; aksi?: ReactNode }) {
   return (
-    <View style={{ alignItems: 'center', gap: 8, paddingVertical: 28, paddingHorizontal: 16 }}>
-      <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: W.hijauPucat, alignItems: 'center', justifyContent: 'center' }}>
-        <Ikon n={ikon} ukuran={30} warna={W.hijau} />
-      </View>
+    <View style={{ alignItems: 'center', gap: 8, paddingVertical: 20, paddingHorizontal: 16 }}>
+      <IlustrasiHadiah id="kosong" ukuran={150} />
       <T v="judul3" tengah>
         {judul}
       </T>
-      <T v="kecil" tengah>
+      <T v="kecil" tengah warna={W.tinta}>
         {isi}
       </T>
+      {aksi ? <View style={{ marginTop: 6, alignItems: 'center' }}>{aksi}</View> : null}
     </View>
   );
 }

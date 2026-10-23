@@ -4,9 +4,9 @@ import { Layar } from '@/ui/Layar';
 import { T } from '@/ui/Teks';
 import { Ikon } from '@/ui/Ikon';
 import { Chip, TautanTombol } from '@/ui/Tombol';
-import { Kerangka, Kotak } from '@/ui/Kecil';
+import { Kerangka, Kotak, Kosong } from '@/ui/Kecil';
 import { Bintik, Gompal } from '@/ui/Bintik';
-import { W } from '@/ui/tema';
+import { W, BIBIR } from '@/ui/tema';
 import { useData } from '@/lib/pakai';
 import type { Entri } from '@/lib/hitung';
 import { meta } from '@/lib/meta';
@@ -85,7 +85,7 @@ export default function Poin() {
         ))}
       </View>
 
-      {!d ? <Kerangka tinggi={320} /> : grup.length === 0 ? <T v="isi">Belum ada riwayat di bagian ini.</T> : grup.map((g) => (
+      {!d ? <Kerangka tinggi={320} /> : grup.length === 0 ? <Kosong judul="Belum ada di bagian ini" isi={f === 'hangus' ? 'Bagus, belum ada bintik yang hangus.' : 'Riwayat bintik bagian ini masih kosong.'} /> : grup.map((g) => (
         <View key={g.bulan} style={{ gap: 8 }}>
           <T v="label" h={3}>{g.bulan}</T>
           <View style={s.daftar}>
@@ -112,7 +112,7 @@ const s = StyleSheet.create({
   saldo: { backgroundColor: W.hijau, borderRadius: 26, padding: 18, gap: 4, overflow: 'hidden', marginTop: 12, borderWidth: 4, borderColor: W.hijauTua },
   butir: { width: 8, height: 8, borderRadius: 4, backgroundColor: W.hijau, marginTop: 8 },
   filter: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  daftar: { backgroundColor: W.kertas, borderRadius: 20, borderWidth: 1, borderColor: W.garis, paddingHorizontal: 12 },
+  daftar: { backgroundColor: W.kertas, borderRadius: 20, ...BIBIR, paddingHorizontal: 12 },
   baris: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
   ikon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });

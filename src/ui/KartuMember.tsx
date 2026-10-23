@@ -27,7 +27,7 @@ export function KartuMember({ nama, nomor, level, atas, children, benih = 11 }: 
         {level ? (
           <View style={s.cap} aria-label={`Level ${level.nama}`}>
             <Wadah id={level.id} ukuran={44} aktif />
-            <T v="kecilTebal" warna={W.hijauTua} style={{ fontSize: 12 }}>
+            <T v="kecilTebal" warna={W.hijauTua} style={{ fontSize: 13 }}>
               {level.nama}
             </T>
           </View>
@@ -40,7 +40,7 @@ export function KartuMember({ nama, nomor, level, atas, children, benih = 11 }: 
           <T v="sub" numberOfLines={1} style={{ flex: 1 }}>
             {nama ?? ' '}
           </T>
-          <T v="kode" style={{ fontSize: 13 }} aria-label={nomor ? `Nomor member ${nomor}` : undefined}>
+          <T v="kode" style={{ fontSize: 13 }} aria-label={nomor ? `Nomor member ${nomor.split(' ').map((g) => g.split('').join(' ')).join(', ')}` : undefined}>
             {nomor ?? ' '}
           </T>
         </View>

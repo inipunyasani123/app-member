@@ -6,6 +6,7 @@ export type Pakai =
   | { tipe: 'naik-ukuran' }
   | { tipe: 'tambah-shot' }
   | { tipe: 'minuman-bebas' }
+  | { tipe: 'gratis-musiman' }
   | { tipe: 'di-kasir' };
 
 export type Hadiah = {
@@ -14,7 +15,7 @@ export type Hadiah = {
   jenis: 'minuman' | 'makanan' | 'potongan' | 'barang' | 'pengalaman';
   biaya: number;
   foto?: string;
-  ikon?: 'shot' | 'naik' | 'potongan' | 'kelas';
+  ikon?: 'shot' | 'naik' | 'potongan' | 'kelas' | 'musim';
   desk: string;
   berlakuHari: number;
   minLevel?: LevelId;
@@ -52,7 +53,14 @@ export const HADIAH: Hadiah[] = [
     desk: 'Belajar seduh V60 dan tubruk bersama barista di Rumah Sangrai. Untuk satu orang, jadwal tiap Sabtu.' },
 ];
 
-export const hadiahById = (id: string) => HADIAH.find((h) => h.id === id);
+/** Hadiah yang tidak dijual di katalog: diberikan otomatis oleh kartu cap musim hujan (6 cap). */
+export const HADIAH_KHUSUS: Hadiah[] = [
+  { id: 'cap-musim', nama: 'Minuman musim hujan gratis', jenis: 'minuman', biaya: 0, ikon: 'musim', berlakuHari: 14, pakai: { tipe: 'gratis-musiman' },
+    desk: 'Hadiah kartu cap musim hujan: satu minuman musim hujan ukuran sedang, gratis.' },
+];
+export const CAP_PENUH = 6;
+
+export const hadiahById = (id: string) => HADIAH.find((h) => h.id === id) ?? HADIAH_KHUSUS.find((h) => h.id === id);
 
 export const SYARAT_UMUM = [
   'Satu voucher untuk satu transaksi, tidak bisa digabung dengan voucher lain.',
