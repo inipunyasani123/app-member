@@ -31,9 +31,9 @@ export const JENIS_HADIAH = [
 ] as const;
 
 export const HADIAH: Hadiah[] = [
-  { id: 'tambah-shot', nama: 'Tambah 1 shot espresso', jenis: 'minuman', biaya: 40, ikon: 'shot', berlakuHari: 14, pakai: { tipe: 'tambah-shot' },
+  { id: 'tambah-shot', nama: 'Tambah 1 shot espresso', jenis: 'minuman', biaya: 40, foto: 'espresso', berlakuHari: 14, pakai: { tipe: 'tambah-shot' },
     desk: 'Satu shot espresso tambahan untuk minuman kopi apa pun. Biar makin melek.' },
-  { id: 'naik-ukuran', nama: 'Naik ukuran gratis', jenis: 'minuman', biaya: 60, ikon: 'naik', berlakuHari: 14, pakai: { tipe: 'naik-ukuran' },
+  { id: 'naik-ukuran', nama: 'Naik ukuran gratis', jenis: 'minuman', biaya: 60, foto: 'latte-art', berlakuHari: 14, pakai: { tipe: 'naik-ukuran' },
     desk: 'Pesan ukuran sedang, bayar sedang, terima ukuran besar. Berlaku untuk semua minuman.' },
   { id: 'potongan-10rb', nama: 'Potongan Rp10.000', jenis: 'potongan', biaya: 110, ikon: 'potongan', berlakuHari: 14, pakai: { tipe: 'potongan', nilai: 10000, minimal: 35000 },
     desk: 'Potongan langsung untuk belanja minimal Rp35.000 dalam satu transaksi.' },
@@ -43,13 +43,13 @@ export const HADIAH: Hadiah[] = [
     desk: 'Satu porsi roti bakar tebal isi cokelat dan keju.' },
   { id: 'kopi-susu', nama: 'Kopi Susu Blirik', jenis: 'minuman', biaya: 190, foto: 'kopi-susu-blirik', berlakuHari: 14, pakai: { tipe: 'gratis-menu', menuId: 'kopi-susu-blirik' },
     desk: 'Satu Kopi Susu Blirik ukuran sedang, es atau panas.' },
-  { id: 'minuman-bebas', nama: 'Minuman apa saja, ukuran besar', jenis: 'minuman', biaya: 280, foto: 'es-kopi-kelapa', berlakuHari: 14, pakai: { tipe: 'minuman-bebas' },
+  { id: 'minuman-bebas', nama: 'Minuman apa saja, ukuran besar', jenis: 'minuman', biaya: 280, foto: 'latte-dingin', berlakuHari: 14, pakai: { tipe: 'minuman-bebas' },
     desk: 'Pilih minuman apa pun di menu, termasuk menu musiman, ukuran besar.' },
   { id: 'biji-kopi', nama: 'Biji kopi sangrai 200 g', jenis: 'barang', biaya: 650, foto: 'biji-kopi', berlakuHari: 30, pakai: { tipe: 'di-kasir' },
     desk: 'Robusta Kediri atau arabika Kawi, disangrai di Rumah Sangrai Tulungagung. Bisa minta digiling.' },
   { id: 'set-cangkir-enamel', nama: 'Set cangkir enamel merah (2 buah)', jenis: 'barang', biaya: 900, foto: 'cangkir-enamel', berlakuHari: 30, minLevel: 'teko', pakai: { tipe: 'di-kasir' },
     desk: 'Dua cangkir enamel 250 ml dengan tepi hitam. Khusus member Teko dan Ceret.' },
-  { id: 'kelas-seduh', nama: 'Kelas seduh manual 90 menit', jenis: 'barang', biaya: 1200, ikon: 'kelas', berlakuHari: 30, minLevel: 'ceret', pakai: { tipe: 'di-kasir' },
+  { id: 'kelas-seduh', nama: 'Kelas seduh manual 90 menit', jenis: 'barang', biaya: 1200, foto: 'seduh-manual', berlakuHari: 30, minLevel: 'ceret', pakai: { tipe: 'di-kasir' },
     desk: 'Belajar seduh V60 dan tubruk bersama barista di Rumah Sangrai. Untuk satu orang, jadwal tiap Sabtu.' },
 ];
 

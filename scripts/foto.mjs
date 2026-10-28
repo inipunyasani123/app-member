@@ -20,6 +20,10 @@ const FOTO = {
   'pisang-goreng-madu': { k: [0.5, 0.52, 0.95], l: [0.5, 0.5, 1] },
   'cangkir-enamel': { k: [0.5, 0.55, 0.66], l: [0.45, 0.5, 0.95] },
   'biji-kopi': { k: [0.5, 0.5, 0.75], l: [0.5, 0.5, 1] },
+  'espresso': { k: [0.55, 0.38, 0.56], l: [0.55, 0.4, 0.8] },
+  'seduh-manual': { k: [0.6, 0.45, 0.6], l: [0.6, 0.45, 1] },
+  'latte-dingin': { k: [0.3, 0.7, 0.45], l: [0.3, 0.65, 0.7] },
+  'latte-art': { k: [0.62, 0.62, 0.7], l: [0.6, 0.6, 1] },
   'outlet-tulungagung': { k: [0.5, 0.55, 1], l: [0.5, 0.52, 1] },
   'outlet-kediri': { k: [0.5, 0.55, 0.66], l: [0.5, 0.5, 1] },
   'outlet-blitar': { k: [0.5, 0.55, 1], l: [0.5, 0.55, 1] },
@@ -36,8 +40,11 @@ function wilayah(w, h, [cx, cy, frac], rasio) {
   return { left, top, width: cw, height: ch };
 }
 
-const daftar = {};
+import { existsSync, readFileSync } from 'node:fs';
+const fileDaftar = path.resolve('src/data/foto-daftar.json');
+const daftar = existsSync(fileDaftar) ? JSON.parse(readFileSync(fileDaftar, 'utf8')) : {};
 for (const [kunci, potong] of Object.entries(FOTO)) {
+  if (!existsSync(path.join(asal, `${kunci}.jpg`))) continue; // foto asli tidak disimpan di repo; hanya proses yang ada
   const masuk = await sharp(path.join(asal, `${kunci}.jpg`)).rotate().toBuffer();
   const { width, height } = await sharp(masuk).metadata();
   daftar[kunci] = {};
@@ -51,4 +58,4 @@ for (const [kunci, potong] of Object.entries(FOTO)) {
   }
   console.log('ok', kunci);
 }
-writeFileSync(path.resolve('src/data/foto-daftar.json'), JSON.stringify(daftar) + '\n');
+writeFileSync(fileDaftar, JSON.stringify(daftar) + '\n');
